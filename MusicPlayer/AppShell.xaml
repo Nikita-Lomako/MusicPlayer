@@ -4,12 +4,37 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:MusicPlayer.Views"
+    xmlns:services="clr-namespace:MusicPlayer.Services"
     Shell.FlyoutBehavior="Disabled"
-    Title="Музыка">
+    Title="{Binding [AppTitle], Source={x:Static services:LocalizationService.Instance}}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+    Shell.TabBarForegroundColor="{StaticResource Accent}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource TabInactiveLight}, Dark={StaticResource TabInactiveDark}}">
 
-    <ShellContent
-        Title="Медиатека"
-        ContentTemplate="{DataTemplate views:LibraryPage}"
-        Route="library" />
+    <TabBar>
+        <ShellContent
+            Title="{Binding [LibraryTitle], Source={x:Static services:LocalizationService.Instance}}"
+            Icon="library.png"
+            ContentTemplate="{DataTemplate views:LibraryPage}"
+            Route="library" />
+
+        <ShellContent
+            x:Name="PlaylistsTab"
+            Title="{Binding [PlaylistsTitle], Source={x:Static services:LocalizationService.Instance}}"
+            Icon="playlists.png"
+            Route="playlists" />
+
+        <ShellContent
+            x:Name="HistoryTab"
+            Title="{Binding [HistoryTitle], Source={x:Static services:LocalizationService.Instance}}"
+            Icon="history.png"
+            Route="history" />
+
+        <ShellContent
+            Title="{Binding [SettingsTitle], Source={x:Static services:LocalizationService.Instance}}"
+            Icon="settings.png"
+            ContentTemplate="{DataTemplate views:SettingsPage}"
+            Route="settings" />
+    </TabBar>
 
 </Shell>
