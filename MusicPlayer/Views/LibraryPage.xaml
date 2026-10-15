@@ -1,11 +1,209 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:models="clr-namespace:MusicPlayer.Models"
+             xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
              x:Class="MusicPlayer.Views.LibraryPage"
-             Title="Медиатека">
-    <Grid>
-        <Label Text="Медиатека"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
+             x:DataType="vm:LibraryViewModel"
+             Title="{Binding LibraryTitle}">
+    <Grid Padding="16"
+          RowDefinitions="Auto,Auto,Auto,*,Auto"
+          RowSpacing="12">
+        <toolkit:MediaElement x:Name="PlaybackElement"
+                              AutomationId="AudioPlaybackHost"
+                              WidthRequest="1"
+                              HeightRequest="1"
+                              Opacity="0"
+                              InputTransparent="True"
+                              ShouldAutoPlay="False"
+                              ShouldShowPlaybackControls="False" />
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto,Auto"
+              ColumnSpacing="8">
+            <SearchBar x:Name="SearchInput"
+                       AutomationId="LibrarySearch"
+                       Text="{Binding SearchText, Mode=TwoWay}"
+                       Placeholder="{Binding SearchPlaceholder}"
+                       SearchButtonPressed="OnSearchButtonPressed"
+                       Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
+                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
+                       PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+            <ImageButton Grid.Column="1"
+                         AutomationId="RescanLibraryButton"
+                         Source="refresh.png"
+                         WidthRequest="44"
+                         HeightRequest="44"
+                         Padding="10"
+                         Background="Transparent"
+                         Command="{Binding RescanCommand}"
+                         SemanticProperties.Description="{Binding RescanLabel}" />
+            <ImageButton Grid.Column="2"
+                         AutomationId="ImportAudioButton"
+                         Source="add.png"
+                         WidthRequest="44"
+                         HeightRequest="44"
+                         Padding="10"
+                         Background="Transparent"
+                         Command="{Binding AddFileCommand}"
+                         SemanticProperties.Description="{Binding AddFileLabel}" />
+        </Grid>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="12"
+              VerticalOptions="Center">
+            <Label Text="{Binding SortLabel}"
+                   VerticalOptions="Center"
+                   FontSize="14" />
+            <Picker Grid.Column="1"
+                    AutomationId="LibrarySortPicker"
+                    Title="{Binding SortLabel}"
+                    ItemsSource="{Binding SortOptions}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}" />
+        </Grid>
+
+        <Label Grid.Row="2"
+               Text="{Binding ErrorMessage}"
+               IsVisible="{Binding HasError}"
+               TextColor="#D43F3A"
+               FontSize="13" />
+
+        <Grid Grid.Row="3">
+            <CollectionView AutomationId="LibraryTrackList"
+                            ItemsSource="{Binding FilteredTracks}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Track">
+                        <Border Margin="0,0,0,6"
+                                Padding="8"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                            <Grid ColumnDefinitions="56,*,Auto,Auto"
+                                  ColumnSpacing="12">
+                                <Border Grid.Column="0"
+                                        WidthRequest="56"
+                                        HeightRequest="56"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 6"
+                                        Background="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+                                    <Grid>
+                                        <Label Text="♪"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               FontSize="24"
+                                               TextColor="{StaticResource Accent}" />
+                                        <Image Source="{Binding ArtworkPath}"
+                                               Aspect="AspectFill" />
+                                    </Grid>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     VerticalOptions="Center"
+                                                     Spacing="3">
+                                    <Label Text="{Binding Title}"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation"
+                                           FontAttributes="Bold"
+                                           FontSize="15" />
+                                    <Label Text="{Binding Artist}"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation"
+                                           FontSize="13"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="{Binding Duration, StringFormat='{0:mm\\:ss}'}"
+                                       VerticalOptions="Center"
+                                       FontSize="13"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                <ImageButton Grid.Column="3"
+                                             Source="info.png"
+                                             WidthRequest="36"
+                                             HeightRequest="36"
+                                             Padding="8"
+                                             Background="Transparent"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LibraryViewModel}}, Path=OpenDetailsCommand}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Source={RelativeSource AncestorType={x:Type vm:LibraryViewModel}}, Path=TrackInfoLabel}" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LibraryViewModel}}, Path=PlayTrackCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24"
+                                         Spacing="12"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center">
+                        <Label Text="{Binding EmptyMessage}"
+                               HorizontalTextAlignment="Center"
+                               FontSize="16" />
+                        <Button Text="{Binding RescanLabel}"
+                                Command="{Binding RescanCommand}"
+                                HorizontalOptions="Center" />
+                        <Button Text="{Binding AddFileLabel}"
+                                Command="{Binding AddFileCommand}"
+                                HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Color="{StaticResource Accent}" />
+        </Grid>
+
+        <Border Grid.Row="4"
+                IsVisible="{Binding IsMiniPlayerVisible}"
+                Padding="12"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 8"
+                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+                <Grid Grid.Column="0"
+                      RowDefinitions="Auto,Auto"
+                      RowSpacing="2">
+                    <Label Text="{Binding MiniPlayerTitle}"
+                           MaxLines="1"
+                           LineBreakMode="TailTruncation"
+                           FontAttributes="Bold" />
+                    <Label Grid.Row="1"
+                           Text="{Binding MiniPlayerArtist}"
+                           MaxLines="1"
+                           LineBreakMode="TailTruncation"
+                           FontSize="12"
+                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenPlayerCommand}" />
+                    </Grid.GestureRecognizers>
+                </Grid>
+                <ImageButton Grid.Column="1"
+                             AutomationId="MiniPlayerPlayPauseButton"
+                             Source="{Binding PlayPauseIcon}"
+                             WidthRequest="44"
+                             HeightRequest="44"
+                             Padding="10"
+                             Background="Transparent"
+                             Command="{Binding TogglePlaybackCommand}"
+                             SemanticProperties.Description="{Binding PlayLabel}" />
+                <ImageButton Grid.Column="2"
+                             AutomationId="MiniPlayerNextButton"
+                             Source="next.png"
+                             WidthRequest="44"
+                             HeightRequest="44"
+                             Padding="10"
+                             Background="Transparent"
+                             Command="{Binding NextCommand}"
+                             SemanticProperties.Description="{Binding NextLabel}" />
+            </Grid>
+        </Border>
     </Grid>
 </ContentPage>

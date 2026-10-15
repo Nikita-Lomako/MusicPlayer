@@ -1,0 +1,267 @@
+using System.Collections.ObjectModel;
+using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
+using MusicPlayer.Services;
+
+namespace MusicPlayer.ViewModels;
+
+public sealed partial class SettingsViewModel : ObservableObject
+{
+    private readonly ILocalizationService _localizationService;
+    private readonly IThemeService _themeService;
+    private readonly IScanFolderService _scanFolderService;
+    private readonly IMediaScannerService _mediaScannerService;
+    private readonly IMusicLibraryService _musicLibrary;
+    private bool _updatingSelection;
+
+    public SettingsViewModel(
+        ILocalizationService localizationService,
+        IThemeService themeService,
+        IScanFolderService scanFolderService,
+        IMediaScannerService mediaScannerService,
+        IMusicLibraryService musicLibrary)
+    {
+        _localizationService = localizationService;
+        _themeService = themeService;
+        _scanFolderService = scanFolderService;
+        _mediaScannerService = mediaScannerService;
+        _musicLibrary = musicLibrary;
+
+        ThemeOptions =
+        [
+            new ThemeOption(ThemeMode.System, _localizationService["ThemeSystem"]),
+            new ThemeOption(ThemeMode.Light, _localizationService["ThemeLight"]),
+            new ThemeOption(ThemeMode.Dark, _localizationService["ThemeDark"])
+        ];
+        LanguageOptions =
+        [
+            new LanguageOption("ru-RU", _localizationService["LanguageRussian"]),
+            new LanguageOption("en-US", _localizationService["LanguageEnglish"])
+        ];
+
+        _updatingSelection = true;
+        SelectedThemeOption = ThemeOptions.First(option => option.Mode == _themeService.CurrentMode);
+        SelectedLanguageOption = LanguageOptions.First(option => option.CultureName == _localizationService.CurrentLanguage);
+        _updatingSelection = false;
+
+        ScanFolders = [];
+        RefreshFolders();
+
+        _localizationService.LanguageChanged += OnLanguageChanged;
+    }
+
+    public ObservableCollection<ThemeOption> ThemeOptions { get; }
+
+    public ObservableCollection<LanguageOption> LanguageOptions { get; }
+
+    public ObservableCollection<string> ScanFolders { get; }
+
+    public string AppearanceSection => _localizationService["AppearanceSection"];
+
+    public string ThemeLabel => _localizationService["ThemeLabel"];
+
+    public string LanguageSection => _localizationService["LanguageSection"];
+
+    public string ScanSection => _localizationService["SettingsScanSection"];
+
+    public string FoldersLabel => _localizationService["SettingsFoldersLabel"];
+
+    public string AddFolderLabel => _localizationService["AddFolderButton"];
+
+    public string RemoveFolderLabel => _localizationService["RemoveFolderLabel"];
+
+    public string RescanLabel => _localizationService["RescanButton"];
+
+    public string PickFileLabel => _localizationService["PickFileButton"];
+
+    public string NoFoldersHint => _localizationService["NoFoldersSelected"];
+
+    public bool HasFolders => ScanFolders.Count > 0;
+
+    public bool HasStatus => !string.IsNullOrWhiteSpace(StatusMessage);
+
+    [ObservableProperty]
+    private ThemeOption? selectedThemeOption;
+
+    [ObservableProperty]
+    private LanguageOption? selectedLanguageOption;
+
+    [ObservableProperty]
+    private bool isScanning;
+
+    [ObservableProperty]
+    private string? statusMessage;
+
+    partial void OnStatusMessageChanged(string? value) => OnPropertyChanged(nameof(HasStatus));
+
+    partial void OnSelectedThemeOptionChanged(ThemeOption? value)
+    {
+        if (!_updatingSelection && value is not null)
+        {
+            _themeService.SetTheme(value.Mode);
+        }
+    }
+
+    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
+    {
+        if (!_updatingSelection && value is not null && value.CultureName != _localizationService.CurrentLanguage)
+        {
+            _localizationService.SetLanguage(value.CultureName);
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddFolderAsync()
+    {
+        try
+        {
+            var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
+            if (result.IsSuccessful && result.Folder is { } folder)
+            {
+                _scanFolderService.AddFolder(folder.Path);
+                RefreshFolders();
+            }
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveFolder(string? folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return;
+        }
+
+        _scanFolderService.RemoveFolder(folder);
+        RefreshFolders();
+    }
+
+    [RelayCommand]
+    private async Task RescanAsync()
+    {
+        if (IsScanning)
+        {
+            return;
+        }
+
+        IsScanning = true;
+        StatusMessage = _localizationService["ScanningStatus"];
+        try
+        {
+            var folders = _scanFolderService.GetEffectiveFolders();
+            var tracks = await _mediaScannerService.ScanFoldersAsync(folders);
+            if (tracks.Count > 0)
+            {
+                await _musicLibrary.SaveTracksAsync(tracks);
+            }
+
+            StatusMessage = string.Format(_localizationService["ScanCompletedFormat"], tracks.Count);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            StatusMessage = exception.Message;
+        }
+        finally
+        {
+            IsScanning = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task PickFileAsync()
+    {
+        try
+        {
+            var track = await _mediaScannerService.PickAudioFileAsync();
+            if (track is not null)
+            {
+                await _musicLibrary.SaveTracksAsync([track]);
+                StatusMessage = string.Format(_localizationService["ScanCompletedFormat"], 1);
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
+    private void RefreshFolders()
+    {
+        ScanFolders.Clear();
+        foreach (var folder in _scanFolderService.GetSelectedFolders())
+        {
+            ScanFolders.Add(folder);
+        }
+
+        OnPropertyChanged(nameof(HasFolders));
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs eventArgs) =>
+        Application.Current?.Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(100), RefreshLocalizedText);
+
+    private void RefreshLocalizedText()
+    {
+        ThemeOptions.First(option => option.Mode == ThemeMode.System).Name = _localizationService["ThemeSystem"];
+        ThemeOptions.First(option => option.Mode == ThemeMode.Light).Name = _localizationService["ThemeLight"];
+        ThemeOptions.First(option => option.Mode == ThemeMode.Dark).Name = _localizationService["ThemeDark"];
+        LanguageOptions.First(option => option.CultureName == "ru-RU").Name = _localizationService["LanguageRussian"];
+        LanguageOptions.First(option => option.CultureName == "en-US").Name = _localizationService["LanguageEnglish"];
+
+        _updatingSelection = true;
+        var theme = SelectedThemeOption;
+        SelectedThemeOption = null;
+        SelectedThemeOption = theme;
+
+        var language = SelectedLanguageOption;
+        SelectedLanguageOption = null;
+        SelectedLanguageOption = language;
+        _updatingSelection = false;
+
+        OnPropertyChanged(nameof(ThemeOptions));
+        OnPropertyChanged(nameof(LanguageOptions));
+        OnPropertyChanged(nameof(AppearanceSection));
+        OnPropertyChanged(nameof(ThemeLabel));
+        OnPropertyChanged(nameof(LanguageSection));
+        OnPropertyChanged(nameof(ScanSection));
+        OnPropertyChanged(nameof(FoldersLabel));
+        OnPropertyChanged(nameof(AddFolderLabel));
+        OnPropertyChanged(nameof(RemoveFolderLabel));
+        OnPropertyChanged(nameof(RescanLabel));
+        OnPropertyChanged(nameof(PickFileLabel));
+        OnPropertyChanged(nameof(NoFoldersHint));
+    }
+}
+
+public sealed partial class ThemeOption : ObservableObject
+{
+    public ThemeOption(ThemeMode mode, string name)
+    {
+        Mode = mode;
+        Name = name;
+    }
+
+    public ThemeMode Mode { get; }
+
+    [ObservableProperty]
+    private string name;
+}
+
+public sealed partial class LanguageOption : ObservableObject
+{
+    public LanguageOption(string cultureName, string name)
+    {
+        CultureName = cultureName;
+        Name = name;
+    }
+
+    public string CultureName { get; }
+
+    [ObservableProperty]
+    private string name;
+}
