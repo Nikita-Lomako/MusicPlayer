@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using MusicPlayer.Services;
 #if MAUI_DEVFLOW
 using Microsoft.Maui.DevFlow.Agent;
 #endif
@@ -18,6 +19,8 @@ namespace MusicPlayer
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit()
                 .UseMauiCommunityToolkitMediaElement(isAndroidForegroundServiceEnabled: true);
+
+            builder.Services.AddSingleton<IMediaScannerService, MediaScannerService>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
