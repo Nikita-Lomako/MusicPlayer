@@ -6,6 +6,22 @@
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="AppTitle" xml:space="preserve"><value>Музыка</value></data>
   <data name="LibraryTitle" xml:space="preserve"><value>Медиатека</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Поиск по медиатеке</value></data>
+  <data name="SortLabel" xml:space="preserve"><value>Сортировка</value></data>
+  <data name="SortTitle" xml:space="preserve"><value>По названию</value></data>
+  <data name="SortArtist" xml:space="preserve"><value>По исполнителю</value></data>
+  <data name="SortDate" xml:space="preserve"><value>Недавно добавленные</value></data>
+  <data name="SortDuration" xml:space="preserve"><value>По длительности</value></data>
+  <data name="RescanButton" xml:space="preserve"><value>Сканировать</value></data>
+  <data name="AddFileButton" xml:space="preserve"><value>Добавить файл</value></data>
+  <data name="EmptyLibrary" xml:space="preserve"><value>В медиатеке пока нет треков</value></data>
+  <data name="NoSearchResults" xml:space="preserve"><value>Ничего не найдено</value></data>
+  <data name="NoTrackPlaying" xml:space="preserve"><value>Выберите трек</value></data>
+  <data name="PlayerTitle" xml:space="preserve"><value>Сейчас играет</value></data>
+  <data name="PlayButton" xml:space="preserve"><value>Воспроизвести</value></data>
+  <data name="PauseButton" xml:space="preserve"><value>Пауза</value></data>
+  <data name="NextButton" xml:space="preserve"><value>Следующий трек</value></data>
+  <data name="PreviousButton" xml:space="preserve"><value>Предыдущий трек</value></data>
   <data name="PlaylistsTitle" xml:space="preserve"><value>Плейлисты</value></data>
   <data name="HistoryTitle" xml:space="preserve"><value>Недавнее</value></data>
   <data name="SettingsTitle" xml:space="preserve"><value>Настройки</value></data>
@@ -17,4 +33,60 @@
   <data name="LanguageSection" xml:space="preserve"><value>Язык интерфейса</value></data>
   <data name="LanguageRussian" xml:space="preserve"><value>Русский</value></data>
   <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
+  <data name="ScanError" xml:space="preserve"><value>Не удалось выполнить сканирование</value></data>
+  <data name="VolumeLabel" xml:space="preserve"><value>Громкость</value></data>
+  <data name="ShuffleOn" xml:space="preserve"><value>Перемешивание включено</value></data>
+  <data name="ShuffleOff" xml:space="preserve"><value>Перемешивание выключено</value></data>
+  <data name="RepeatOff" xml:space="preserve"><value>Повтор выключен</value></data>
+  <data name="RepeatAll" xml:space="preserve"><value>Повтор всех треков</value></data>
+  <data name="RepeatTrack" xml:space="preserve"><value>Повтор одного трека</value></data>
+  <data name="TrackDetailsTitle" xml:space="preserve"><value>О треке</value></data>
+  <data name="DetailTitle" xml:space="preserve"><value>Название</value></data>
+  <data name="DetailArtist" xml:space="preserve"><value>Исполнитель</value></data>
+  <data name="DetailAlbum" xml:space="preserve"><value>Альбом</value></data>
+  <data name="DetailAlbumArtist" xml:space="preserve"><value>Исполнитель альбома</value></data>
+  <data name="DetailFormat" xml:space="preserve"><value>Формат</value></data>
+  <data name="DetailBitrate" xml:space="preserve"><value>Битрейт</value></data>
+  <data name="DetailSize" xml:space="preserve"><value>Размер файла</value></data>
+  <data name="DetailPath" xml:space="preserve"><value>Путь на устройстве</value></data>
+  <data name="DetailYear" xml:space="preserve"><value>Год</value></data>
+  <data name="DetailGenre" xml:space="preserve"><value>Жанр</value></data>
+  <data name="DetailDuration" xml:space="preserve"><value>Длительность</value></data>
+  <data name="UnknownValue" xml:space="preserve"><value>Неизвестно</value></data>
+  <data name="NewPlaylistPlaceholder" xml:space="preserve"><value>Название нового плейлиста</value></data>
+  <data name="CreatePlaylistButton" xml:space="preserve"><value>Создать</value></data>
+  <data name="AllTracksPlaylist" xml:space="preserve"><value>Все треки</value></data>
+  <data name="EmptyPlaylists" xml:space="preserve"><value>Плейлистов пока нет</value></data>
+  <data name="TrackCountLabel" xml:space="preserve"><value>Треков:</value></data>
+  <data name="DeletePlaylistLabel" xml:space="preserve"><value>Удалить плейлист</value></data>
+  <data name="RenamePlaylistLabel" xml:space="preserve"><value>Переименовать</value></data>
+  <data name="SaveRenameButton" xml:space="preserve"><value>Сохранить</value></data>
+  <data name="PlaylistDetailsTitle" xml:space="preserve"><value>Плейлист</value></data>
+  <data name="AddTracksButton" xml:space="preserve"><value>Добавить треки</value></data>
+  <data name="HideTracksButton" xml:space="preserve"><value>Готово</value></data>
+  <data name="RemoveTrackLabel" xml:space="preserve"><value>Убрать из плейлиста</value></data>
+  <data name="AddTrackLabel" xml:space="preserve"><value>Добавить в плейлист</value></data>
+  <data name="EmptyPlaylistTracks" xml:space="preserve"><value>В плейлисте нет треков</value></data>
+  <data name="PlayAllButton" xml:space="preserve"><value>Играть все</value></data>
+  <data name="HistoryRecentlyAdded" xml:space="preserve"><value>Недавно добавленные</value></data>
+  <data name="HistoryRecentlyPlayed" xml:space="preserve"><value>Недавно прослушанные</value></data>
+  <data name="EmptyHistory" xml:space="preserve"><value>История пуста</value></data>
+  <data name="SettingsScanSection" xml:space="preserve"><value>Сканирование музыки</value></data>
+  <data name="SettingsFoldersLabel" xml:space="preserve"><value>Папки для сканирования</value></data>
+  <data name="AddFolderButton" xml:space="preserve"><value>Добавить папку</value></data>
+  <data name="RemoveFolderLabel" xml:space="preserve"><value>Убрать папку</value></data>
+  <data name="PickFileButton" xml:space="preserve"><value>Выбрать файл</value></data>
+  <data name="NoFoldersSelected" xml:space="preserve"><value>Папки не выбраны — используется папка музыки по умолчанию</value></data>
+  <data name="ScanCompletedFormat" xml:space="preserve"><value>Найдено треков: {0}</value></data>
+  <data name="ScanningStatus" xml:space="preserve"><value>Сканирование…</value></data>
+  <data name="FolderPickerTitle" xml:space="preserve"><value>Выберите папку</value></data>
+  <data name="TrackInfoLabel" xml:space="preserve"><value>Информация о треке</value></data>
+  <data name="OpenPlayerLabel" xml:space="preserve"><value>Открыть плеер</value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Удалить плейлист?</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Плейлист будет удалён. Треки останутся в медиатеке.</value></data>
+  <data name="ConfirmButton" xml:space="preserve"><value>Удалить</value></data>
+  <data name="CancelButton" xml:space="preserve"><value>Отмена</value></data>
+  <data name="PlaylistNameRequired" xml:space="preserve"><value>Введите название плейлиста</value></data>
+  <data name="LibraryTracksPickerTitle" xml:space="preserve"><value>Все треки медиатеки</value></data>
+  <data name="SearchTracksPlaceholder" xml:space="preserve"><value>Поиск треков</value></data>
 </root>

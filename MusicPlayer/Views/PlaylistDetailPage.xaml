@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:MusicPlayer.Models"
+             xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             x:Class="MusicPlayer.Views.PlaylistDetailPage"
+             x:DataType="vm:PlaylistDetailViewModel"
+             Title="{Binding PlaylistName}">
+    <Grid Padding="16"
+          RowDefinitions="Auto,Auto,Auto,*,Auto"
+          RowSpacing="10">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto,Auto"
+              ColumnSpacing="8">
+            <Label Text="{Binding PlaylistName}"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   MaxLines="1"
+                   LineBreakMode="TailTruncation" />
+            <Button Grid.Column="1"
+                    AutomationId="PlayAllButton"
+                    Text="{Binding PlayAllLabel}"
+                    IsEnabled="{Binding HasTracks}"
+                    Command="{Binding PlayAllCommand}" />
+            <Button Grid.Column="2"
+                    AutomationId="ToggleLibraryPickerButton"
+                    Text="{Binding AddTracksLabel}"
+                    IsVisible="{Binding IsSystemPlaylist, Converter={StaticResource InvertedBoolConverter}}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Accent}"
+                    Command="{Binding ToggleLibraryPickerCommand}" />
+        </Grid>
+
+        <Border Grid.Row="1"
+                IsVisible="{Binding IsLibraryPickerVisible}"
+                Padding="10"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 8"
+                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <VerticalStackLayout Spacing="8">
+                <SearchBar AutomationId="PlaylistLibrarySearch"
+                           Text="{Binding SearchText, Mode=TwoWay}"
+                           Placeholder="{Binding SearchPlaceholder}" />
+                <CollectionView AutomationId="PlaylistLibraryTrackList"
+                                ItemsSource="{Binding LibraryTracks}"
+                                HeightRequest="220"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LibraryTrackItem">
+                            <Grid Padding="4"
+                                  ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding Track.Title}"
+                                           FontSize="14"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Track.Artist}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <ImageButton Grid.Column="1"
+                                             Source="{Binding Icon}"
+                                             WidthRequest="36"
+                                             HeightRequest="36"
+                                             Padding="8"
+                                             Background="Transparent"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistDetailViewModel}}, Path=ToggleLibraryTrackCommand}"
+                                             CommandParameter="{Binding .}" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </Border>
+
+        <Label Grid.Row="2"
+               Text="{Binding DoneLabel}"
+               IsVisible="{Binding IsLibraryPickerVisible}"
+               HorizontalOptions="End"
+               TextColor="{StaticResource Accent}">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ToggleLibraryPickerCommand}" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <Grid Grid.Row="3">
+            <CollectionView AutomationId="PlaylistTrackList"
+                            ItemsSource="{Binding Tracks}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Track">
+                        <Border Margin="0,0,0,6"
+                                Padding="8"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="8">
+                                <VerticalStackLayout Grid.Column="0"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Artist}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <ImageButton Grid.Column="1"
+                                             Source="delete.png"
+                                             WidthRequest="36"
+                                             HeightRequest="36"
+                                             Padding="8"
+                                             Background="Transparent"
+                                             IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistDetailViewModel}}, Path=IsSystemPlaylist, Converter={StaticResource InvertedBoolConverter}}"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistDetailViewModel}}, Path=RemoveTrackCommand}"
+                                             CommandParameter="{Binding .}" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistDetailViewModel}}, Path=PlayTrackCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="{Binding EmptyMessage}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           FontSize="16" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Color="{StaticResource Accent}" />
+        </Grid>
+    </Grid>
+</ContentPage>

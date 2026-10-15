@@ -32,6 +32,16 @@ public sealed class LocalizationService : ILocalizationService
 
     public string CurrentLanguage => _currentCulture.Name;
 
+    public string AppTitle => this["AppTitle"];
+
+    public string LibraryTitle => this["LibraryTitle"];
+
+    public string PlaylistsTitle => this["PlaylistsTitle"];
+
+    public string HistoryTitle => this["HistoryTitle"];
+
+    public string SettingsTitle => this["SettingsTitle"];
+
     public string this[string key] => Resources.GetString(key, _currentCulture) ?? key;
 
     public void SetLanguage(string languageCode)
@@ -50,6 +60,11 @@ public sealed class LocalizationService : ILocalizationService
         OnPropertyChanged(nameof(CurrentCulture));
         OnPropertyChanged(nameof(CurrentLanguage));
         OnPropertyChanged("Item[]");
+        OnPropertyChanged(nameof(AppTitle));
+        OnPropertyChanged(nameof(LibraryTitle));
+        OnPropertyChanged(nameof(PlaylistsTitle));
+        OnPropertyChanged(nameof(HistoryTitle));
+        OnPropertyChanged(nameof(SettingsTitle));
         LanguageChanged?.Invoke(this, EventArgs.Empty);
     }
 

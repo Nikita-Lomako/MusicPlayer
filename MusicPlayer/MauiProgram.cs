@@ -26,8 +26,19 @@ namespace MusicPlayer
                 .UseMauiCommunityToolkitMediaElement(isAndroidForegroundServiceEnabled: true);
 
             builder.Services.AddSingleton<IMediaScannerService, MediaScannerService>();
+            builder.Services.AddSingleton<MusicDatabase>();
+            builder.Services.AddSingleton<IMusicLibraryService, MusicLibraryService>();
+            builder.Services.AddSingleton<IPlaylistService, PlaylistService>();
+            builder.Services.AddSingleton<IHistoryService, HistoryService>();
+            builder.Services.AddSingleton<IScanFolderService, ScanFolderService>();
             builder.Services.AddSingleton<IAudioService, AudioService>();
+            builder.Services.AddSingleton<LibraryViewModel>();
+            builder.Services.AddSingleton<PlayerViewModel>();
             builder.Services.AddSingleton<SettingsViewModel>();
+            builder.Services.AddTransient<PlaylistsViewModel>();
+            builder.Services.AddTransient<PlaylistDetailViewModel>();
+            builder.Services.AddTransient<HistoryViewModel>();
+            builder.Services.AddTransient<TrackDetailsViewModel>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
