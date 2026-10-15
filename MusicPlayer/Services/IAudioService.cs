@@ -1,10 +1,13 @@
 using System.ComponentModel;
+using CommunityToolkit.Maui.Views;
 using MusicPlayer.Models;
 
 namespace MusicPlayer.Services;
 
 public interface IAudioService : INotifyPropertyChanged
 {
+    void AttachPlayer(MediaElement player);
+
     Track? CurrentTrack { get; }
 
     IReadOnlyList<Track> Queue { get; }

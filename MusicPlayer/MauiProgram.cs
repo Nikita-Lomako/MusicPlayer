@@ -21,6 +21,7 @@ namespace MusicPlayer
                 .UseMauiCommunityToolkitMediaElement(isAndroidForegroundServiceEnabled: true);
 
             builder.Services.AddSingleton<IMediaScannerService, MediaScannerService>();
+            builder.Services.AddSingleton<IAudioService, AudioService>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
