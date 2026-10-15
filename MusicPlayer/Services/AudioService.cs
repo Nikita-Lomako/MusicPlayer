@@ -9,6 +9,7 @@ namespace MusicPlayer.Services;
 
 public sealed class AudioService : IAudioService
 {
+    private readonly IHistoryService _historyService;
     private readonly List<Track> _sourceQueue = [];
     private List<Track> _queue = [];
     private IReadOnlyList<Track> _queueView = Array.Empty<Track>();
@@ -21,6 +22,11 @@ public sealed class AudioService : IAudioService
     private TimeSpan _position;
     private TimeSpan _duration;
     private PlaybackRepeatMode _repeatMode;
+
+    public AudioService(IHistoryService historyService)
+    {
+        _historyService = historyService;
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -133,6 +139,11 @@ public sealed class AudioService : IAudioService
         _isPlaying = false;
 
         var track = CurrentTrack!;
+        if (playImmediately)
+        {
+            RecordPlayback(track);
+        }
+
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
             var player = GetPlayer();
@@ -308,6 +319,11 @@ public sealed class AudioService : IAudioService
         _isPlaying = false;
         var track = CurrentTrack!;
 
+        if (playImmediately)
+        {
+            RecordPlayback(track);
+        }
+
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
             var player = GetPlayer();
@@ -427,6 +443,16 @@ public sealed class AudioService : IAudioService
 
     private MediaElement GetPlayer() => _player
         ?? throw new InvalidOperationException("The audio player has not been attached to a MediaElement.");
+
+    private void RecordPlayback(Track track)
+    {
+        if (track.Id <= 0)
+        {
+            return;
+        }
+
+        _ = _historyService.RecordPlayAsync(track.Id);
+    }
 
     private static MediaSource CreateSource(string path) =>
         Uri.TryCreate(path, UriKind.Absolute, out var uri)

@@ -120,6 +120,7 @@ public sealed partial class MediaScannerService
     {
         var externalStoragePath = global::Android.OS.Environment.ExternalStorageDirectory?.AbsolutePath;
         return folders
+            .Where(static folder => !folder.Contains("://", StringComparison.Ordinal))
             .Select(folder =>
             {
                 var relativePath = !string.IsNullOrWhiteSpace(externalStoragePath)
