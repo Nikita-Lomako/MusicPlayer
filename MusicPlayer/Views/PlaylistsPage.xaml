@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             x:Class="MusicPlayer.Views.PlaylistsPage"
+             x:DataType="vm:PlaylistsViewModel"
+             Title="{Binding Title}">
+    <Grid Padding="16"
+          RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="12">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="8">
+            <Entry AutomationId="NewPlaylistEntry"
+                   Text="{Binding NewPlaylistName, Mode=TwoWay}"
+                   Placeholder="{Binding NewPlaylistPlaceholder}" />
+            <Button Grid.Column="1"
+                    AutomationId="CreatePlaylistButton"
+                    Text="{Binding CreateLabel}"
+                    Command="{Binding CreateCommand}" />
+        </Grid>
+
+        <Label Grid.Row="1"
+               Text="{Binding ErrorMessage}"
+               IsVisible="{Binding HasError}"
+               TextColor="#D43F3A"
+               FontSize="13" />
+
+        <Border Grid.Row="2"
+                IsVisible="{Binding IsRenaming}"
+                Padding="12"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 8"
+                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="8">
+                <Entry AutomationId="RenamePlaylistEntry"
+                       Text="{Binding RenameText, Mode=TwoWay}" />
+                <Button Grid.Column="1"
+                        Text="{Binding SaveLabel}"
+                        Command="{Binding SaveRenameCommand}" />
+                <Button Grid.Column="2"
+                        Text="{Binding CancelLabel}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Accent}"
+                        Command="{Binding CancelRenameCommand}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="3">
+            <CollectionView AutomationId="PlaylistsList"
+                            ItemsSource="{Binding Playlists}"
+                            SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PlaylistItem">
+                        <Border Margin="0,0,0,8"
+                                Padding="12"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                                  ColumnSpacing="6">
+                                <VerticalStackLayout Grid.Column="0"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding DisplayName}"
+                                           FontAttributes="Bold"
+                                           FontSize="15"
+                                           MaxLines="1"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding TrackCountText}"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                </VerticalStackLayout>
+                                <ImageButton Grid.Column="1"
+                                             Source="edit.png"
+                                             WidthRequest="40"
+                                             HeightRequest="40"
+                                             Padding="9"
+                                             Background="Transparent"
+                                             IsVisible="{Binding IsSystem, Converter={StaticResource InvertedBoolConverter}}"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=BeginRenameCommand}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=RenameLabel}" />
+                                <ImageButton Grid.Column="2"
+                                             Source="delete.png"
+                                             WidthRequest="40"
+                                             HeightRequest="40"
+                                             Padding="9"
+                                             Background="Transparent"
+                                             IsVisible="{Binding IsSystem, Converter={StaticResource InvertedBoolConverter}}"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=DeleteCommand}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=DeleteLabel}" />
+                                <ImageButton Grid.Column="3"
+                                             Source="play.png"
+                                             WidthRequest="40"
+                                             HeightRequest="40"
+                                             Padding="9"
+                                             Background="Transparent"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=OpenCommand}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=Title}" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaylistsViewModel}}, Path=OpenCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <Label Text="{Binding EmptyMessage}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           FontSize="16" />
+                </CollectionView.EmptyView>
+            </CollectionView>
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Color="{StaticResource Accent}" />
+        </Grid>
+    </Grid>
+</ContentPage>
