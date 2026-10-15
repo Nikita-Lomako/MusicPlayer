@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppTitle" xml:space="preserve"><value>Музыка</value></data>
+  <data name="LibraryTitle" xml:space="preserve"><value>Медиатека</value></data>
+  <data name="PlaylistsTitle" xml:space="preserve"><value>Плейлисты</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Недавнее</value></data>
+  <data name="SettingsTitle" xml:space="preserve"><value>Настройки</value></data>
+  <data name="AppearanceSection" xml:space="preserve"><value>Оформление</value></data>
+  <data name="ThemeLabel" xml:space="preserve"><value>Тема</value></data>
+  <data name="ThemeSystem" xml:space="preserve"><value>Системная</value></data>
+  <data name="ThemeLight" xml:space="preserve"><value>Светлая</value></data>
+  <data name="ThemeDark" xml:space="preserve"><value>Тёмная</value></data>
+  <data name="LanguageSection" xml:space="preserve"><value>Язык интерфейса</value></data>
+  <data name="LanguageRussian" xml:space="preserve"><value>Русский</value></data>
+  <data name="LanguageEnglish" xml:space="preserve"><value>English</value></data>
+</root>

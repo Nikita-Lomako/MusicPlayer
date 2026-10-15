@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using MusicPlayer.Services;
+using MusicPlayer.ViewModels;
 #if MAUI_DEVFLOW
 using Microsoft.Maui.DevFlow.Agent;
 #endif
@@ -12,6 +13,10 @@ namespace MusicPlayer
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+            var localizationService = new LocalizationService();
+            builder.Services.AddSingleton<ILocalizationService>(localizationService);
+            builder.Services.AddSingleton(localizationService);
+            builder.Services.AddSingleton<IThemeService, ThemeService>();
 #if MAUI_DEVFLOW
             builder.AddMauiDevFlowAgent();
 #endif
@@ -22,6 +27,7 @@ namespace MusicPlayer
 
             builder.Services.AddSingleton<IMediaScannerService, MediaScannerService>();
             builder.Services.AddSingleton<IAudioService, AudioService>();
+            builder.Services.AddSingleton<SettingsViewModel>();
 
 #if DEBUG
     		builder.Logging.AddDebug();
