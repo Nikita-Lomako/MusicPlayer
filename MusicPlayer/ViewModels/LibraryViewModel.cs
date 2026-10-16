@@ -30,13 +30,7 @@ public sealed partial class LibraryViewModel : ObservableObject
         _localizationService = localizationService;
         Tracks = [];
         FilteredTracks = [];
-        SortOptions =
-        [
-            new TrackSortOption(TrackSortMode.Title, _localizationService["SortTitle"]),
-            new TrackSortOption(TrackSortMode.Artist, _localizationService["SortArtist"]),
-            new TrackSortOption(TrackSortMode.DateAdded, _localizationService["SortDate"]),
-            new TrackSortOption(TrackSortMode.Duration, _localizationService["SortDuration"])
-        ];
+        SortOptions = BuildSortOptions();
         SelectedSortOption = SortOptions[0];
 
         _localizationService.LanguageChanged += OnLanguageChanged;
@@ -47,7 +41,8 @@ public sealed partial class LibraryViewModel : ObservableObject
 
     public ObservableCollection<Track> FilteredTracks { get; }
 
-    public ObservableCollection<TrackSortOption> SortOptions { get; }
+    [ObservableProperty]
+    private ObservableCollection<TrackSortOption> sortOptions = [];
 
     public string SearchPlaceholder => _localizationService["SearchPlaceholder"];
 
@@ -222,10 +217,13 @@ public sealed partial class LibraryViewModel : ObservableObject
 
     private void OnLanguageChanged(object? sender, EventArgs eventArgs)
     {
-        SortOptions[0].Name = _localizationService["SortTitle"];
-        SortOptions[1].Name = _localizationService["SortArtist"];
-        SortOptions[2].Name = _localizationService["SortDate"];
-        SortOptions[3].Name = _localizationService["SortDuration"];
+        // Rebuild the sort options so the picker re-reads the localized labels.
+        // The MAUI Picker caches the display text of its items, so mutating the
+        // option name alone does not refresh a visible dropdown.
+        var mode = SelectedSortOption?.Mode ?? TrackSortMode.Title;
+        SortOptions = BuildSortOptions();
+        SelectedSortOption = SortOptions.First(option => option.Mode == mode);
+
         OnPropertyChanged(nameof(SearchPlaceholder));
         OnPropertyChanged(nameof(LibraryTitle));
         OnPropertyChanged(nameof(SortLabel));
@@ -234,6 +232,14 @@ public sealed partial class LibraryViewModel : ObservableObject
         OnPropertyChanged(nameof(EmptyMessage));
         OnPropertyChanged(nameof(TrackInfoLabel));
     }
+
+    private ObservableCollection<TrackSortOption> BuildSortOptions() =>
+    [
+        new TrackSortOption(TrackSortMode.Title, _localizationService["SortTitle"]),
+        new TrackSortOption(TrackSortMode.Artist, _localizationService["SortArtist"]),
+        new TrackSortOption(TrackSortMode.DateAdded, _localizationService["SortDate"]),
+        new TrackSortOption(TrackSortMode.Duration, _localizationService["SortDuration"])
+    ];
 
     private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs) =>
         MainThread.BeginInvokeOnMainThread(() => _ = LoadFromLibraryAsync());

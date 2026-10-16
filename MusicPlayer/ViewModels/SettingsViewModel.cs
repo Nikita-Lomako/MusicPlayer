@@ -29,17 +29,8 @@ public sealed partial class SettingsViewModel : ObservableObject
         _mediaScannerService = mediaScannerService;
         _musicLibrary = musicLibrary;
 
-        ThemeOptions =
-        [
-            new ThemeOption(ThemeMode.System, _localizationService["ThemeSystem"]),
-            new ThemeOption(ThemeMode.Light, _localizationService["ThemeLight"]),
-            new ThemeOption(ThemeMode.Dark, _localizationService["ThemeDark"])
-        ];
-        LanguageOptions =
-        [
-            new LanguageOption("ru-RU", _localizationService["LanguageRussian"]),
-            new LanguageOption("en-US", _localizationService["LanguageEnglish"])
-        ];
+        ThemeOptions = BuildThemeOptions();
+        LanguageOptions = BuildLanguageOptions();
 
         _updatingSelection = true;
         SelectedThemeOption = ThemeOptions.First(option => option.Mode == _themeService.CurrentMode);
@@ -52,9 +43,11 @@ public sealed partial class SettingsViewModel : ObservableObject
         _localizationService.LanguageChanged += OnLanguageChanged;
     }
 
-    public ObservableCollection<ThemeOption> ThemeOptions { get; }
+    [ObservableProperty]
+    private ObservableCollection<ThemeOption> themeOptions = [];
 
-    public ObservableCollection<LanguageOption> LanguageOptions { get; }
+    [ObservableProperty]
+    private ObservableCollection<LanguageOption> languageOptions = [];
 
     public ObservableCollection<string> ScanFolders { get; }
 
@@ -263,24 +256,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     private void RefreshLocalizedText()
     {
-        ThemeOptions.First(option => option.Mode == ThemeMode.System).Name = _localizationService["ThemeSystem"];
-        ThemeOptions.First(option => option.Mode == ThemeMode.Light).Name = _localizationService["ThemeLight"];
-        ThemeOptions.First(option => option.Mode == ThemeMode.Dark).Name = _localizationService["ThemeDark"];
-        LanguageOptions.First(option => option.CultureName == "ru-RU").Name = _localizationService["LanguageRussian"];
-        LanguageOptions.First(option => option.CultureName == "en-US").Name = _localizationService["LanguageEnglish"];
+        // Rebuild the option collections so the pickers re-read the localized
+        // labels. The MAUI Picker caches the display text of its items, so
+        // mutating the option name alone does not refresh a visible dropdown.
+        ThemeOptions = BuildThemeOptions();
+        LanguageOptions = BuildLanguageOptions();
 
         _updatingSelection = true;
-        var theme = SelectedThemeOption;
-        SelectedThemeOption = null;
-        SelectedThemeOption = theme;
-
-        var language = SelectedLanguageOption;
-        SelectedLanguageOption = null;
-        SelectedLanguageOption = language;
+        SelectedThemeOption = ThemeOptions.First(option => option.Mode == _themeService.CurrentMode);
+        SelectedLanguageOption = LanguageOptions.First(option => option.CultureName == _localizationService.CurrentLanguage);
         _updatingSelection = false;
 
-        OnPropertyChanged(nameof(ThemeOptions));
-        OnPropertyChanged(nameof(LanguageOptions));
         OnPropertyChanged(nameof(AppearanceSection));
         OnPropertyChanged(nameof(ThemeLabel));
         OnPropertyChanged(nameof(LanguageSection));
@@ -295,6 +281,19 @@ public sealed partial class SettingsViewModel : ObservableObject
         OnPropertyChanged(nameof(RemovedFoldersHint));
         OnPropertyChanged(nameof(ClearRemovedLabel));
     }
+
+    private ObservableCollection<ThemeOption> BuildThemeOptions() =>
+    [
+        new ThemeOption(ThemeMode.System, _localizationService["ThemeSystem"]),
+        new ThemeOption(ThemeMode.Light, _localizationService["ThemeLight"]),
+        new ThemeOption(ThemeMode.Dark, _localizationService["ThemeDark"])
+    ];
+
+    private ObservableCollection<LanguageOption> BuildLanguageOptions() =>
+    [
+        new LanguageOption("ru-RU", _localizationService["LanguageRussian"]),
+        new LanguageOption("en-US", _localizationService["LanguageEnglish"])
+    ];
 }
 
 public sealed partial class ThemeOption : ObservableObject
