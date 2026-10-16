@@ -165,7 +165,9 @@ public sealed partial class MediaScannerService : IMediaScannerService
 
                     try
                     {
-                        tracks.Add(ReadTrack(filePath, Path.GetFileNameWithoutExtension(filePath)));
+                        var track = ReadTrack(filePath, Path.GetFileNameWithoutExtension(filePath));
+                        track.SourceFolder = NormalizeFolderKey(Path.GetDirectoryName(filePath));
+                        tracks.Add(track);
                     }
                     catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or TagLib.CorruptFileException or TagLib.UnsupportedFormatException)
                     {
@@ -239,6 +241,24 @@ public sealed partial class MediaScannerService : IMediaScannerService
 
     private static bool IsSupportedExtension(string extension) =>
         AudioExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Canonical folder key used on <see cref="Track.SourceFolder"/>. Forward
+    /// slashes and no trailing separator so comparisons are platform agnostic.
+    /// </summary>
+    internal static string NormalizeFolderKey(string? folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return string.Empty;
+        }
+
+        return folder.Trim().Replace('\\', '/').Trim('/');
+    }
+
+#if !ANDROID
+    public string GetFolderKey(string folder) => NormalizeFolderKey(folder);
+#endif
 
 #if ANDROID
     private sealed class ReadAudioPermission : Permissions.BasePlatformPermission

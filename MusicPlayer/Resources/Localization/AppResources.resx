@@ -91,4 +91,10 @@
   <data name="SearchTracksPlaceholder" xml:space="preserve"><value>Поиск треков</value></data>
   <data name="AudioFilePickerTitle" xml:space="preserve"><value>Выберите аудиофайл</value></data>
   <data name="UnsupportedFormat" xml:space="preserve"><value>Формат файла '{0}' не поддерживается.</value></data>
+  <data name="RemovedFoldersSection" xml:space="preserve"><value>Удалённые папки</value></data>
+  <data name="RemovedFoldersHint" xml:space="preserve"><value>Треки из этих папок остаются в медиатеке. Их можно убрать:</value></data>
+  <data name="ClearRemovedTracksButton" xml:space="preserve"><value>Убрать треки</value></data>
+  <data name="ClearRemovedConfirmTitle" xml:space="preserve"><value>Убрать треки?</value></data>
+  <data name="ClearRemovedConfirmMessage" xml:space="preserve"><value>Треки из удалённых папок ({0}) будут удалены из медиатеки. Выбранные папки не затронуты.</value></data>
+  <data name="ClearRemovedCompletedFormat" xml:space="preserve"><value>Удалено треков: {0}</value></data>
 </root>

@@ -78,9 +78,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public string NoFoldersHint => _localizationService["NoFoldersSelected"];
 
+    public string RemovedFoldersSection => _localizationService["RemovedFoldersSection"];
+
+    public string RemovedFoldersHint => _localizationService["RemovedFoldersHint"];
+
+    public string ClearRemovedLabel => _localizationService["ClearRemovedTracksButton"];
+
     public bool HasFolders => ScanFolders.Count > 0;
 
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusMessage);
+
+    public bool HasRemovedFolders => !string.IsNullOrWhiteSpace(RemovedFoldersText);
 
     [ObservableProperty]
     private ThemeOption? selectedThemeOption;
@@ -94,7 +102,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string? statusMessage;
 
+    [ObservableProperty]
+    private string? removedFoldersText;
+
     partial void OnStatusMessageChanged(string? value) => OnPropertyChanged(nameof(HasStatus));
+
+    partial void OnRemovedFoldersTextChanged(string? value) => OnPropertyChanged(nameof(HasRemovedFolders));
 
     partial void OnSelectedThemeOptionChanged(ThemeOption? value)
     {
@@ -191,6 +204,44 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task ClearRemovedTracksAsync()
+    {
+        var removedFolders = _scanFolderService.GetRemovedFolders();
+        if (removedFolders.Count == 0)
+        {
+            return;
+        }
+
+        var confirmed = await Shell.Current.DisplayAlertAsync(
+            _localizationService["ClearRemovedConfirmTitle"],
+            string.Format(_localizationService["ClearRemovedConfirmMessage"], removedFolders.Count),
+            _localizationService["ConfirmButton"],
+            _localizationService["CancelButton"]);
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            var keys = removedFolders
+                .Select(_mediaScannerService.GetFolderKey)
+                .Where(static key => !string.IsNullOrWhiteSpace(key))
+                .ToArray();
+
+            var removed = await _musicLibrary.RemoveTracksFromFoldersAsync(keys);
+            _scanFolderService.ClearRemovedFolders();
+            RefreshFolders();
+            StatusMessage = string.Format(_localizationService["ClearRemovedCompletedFormat"], removed);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
     private void RefreshFolders()
     {
         ScanFolders.Clear();
@@ -198,6 +249,11 @@ public sealed partial class SettingsViewModel : ObservableObject
         {
             ScanFolders.Add(folder);
         }
+
+        var removed = _scanFolderService.GetRemovedFolders();
+        RemovedFoldersText = removed.Count == 0
+            ? null
+            : string.Join(Environment.NewLine, removed);
 
         OnPropertyChanged(nameof(HasFolders));
     }
@@ -235,6 +291,9 @@ public sealed partial class SettingsViewModel : ObservableObject
         OnPropertyChanged(nameof(RescanLabel));
         OnPropertyChanged(nameof(PickFileLabel));
         OnPropertyChanged(nameof(NoFoldersHint));
+        OnPropertyChanged(nameof(RemovedFoldersSection));
+        OnPropertyChanged(nameof(RemovedFoldersHint));
+        OnPropertyChanged(nameof(ClearRemovedLabel));
     }
 }
 

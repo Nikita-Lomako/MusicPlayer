@@ -106,7 +106,8 @@ public sealed partial class MediaScannerService
                 Duration = TimeSpan.FromMilliseconds(cursor.GetLong(durationIndex)),
                 FileSizeBytes = cursor.GetLong(sizeIndex),
                 Format = extension.TrimStart('.').ToLowerInvariant(),
-                AddedAtUtc = DateTimeOffset.FromUnixTimeSeconds(dateAddedSeconds).UtcDateTime
+                AddedAtUtc = DateTimeOffset.FromUnixTimeSeconds(dateAddedSeconds).UtcDateTime,
+                SourceFolder = NormalizeFolderKey(relativePath)
             };
 
             await EnrichFromTagLibAsync(resolver, contentUri, displayName, track, cancellationToken);
@@ -139,6 +140,22 @@ public sealed partial class MediaScannerService
 
     private static bool IsInSelectedFolder(string relativePath, IReadOnlyCollection<string> folders) =>
         folders.Count == 0 || folders.Any(folder => relativePath.StartsWith(folder, StringComparison.OrdinalIgnoreCase));
+
+    public string GetFolderKey(string folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return string.Empty;
+        }
+
+        var externalStoragePath = global::Android.OS.Environment.ExternalStorageDirectory?.AbsolutePath;
+        var relativePath = !string.IsNullOrWhiteSpace(externalStoragePath)
+            && folder.StartsWith(externalStoragePath, StringComparison.OrdinalIgnoreCase)
+            ? Path.GetRelativePath(externalStoragePath, folder)
+            : folder;
+
+        return NormalizeFolderKey(relativePath);
+    }
 
     private static async Task EnrichFromTagLibAsync(
         ContentResolver resolver,

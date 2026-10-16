@@ -22,4 +22,14 @@ public interface IMusicLibraryService
     Task<Track?> GetTrackAsync(int trackId, CancellationToken cancellationToken = default);
 
     Task<Track?> FindByPathAsync(string filePath, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes every track located under the given normalized folder keys,
+    /// together with its playlist links and history entries. Tracks coming from
+    /// folders that are still selected are not touched. Returns the number of
+    /// removed tracks and raises <see cref="TracksChanged"/> when it changed.
+    /// </summary>
+    Task<int> RemoveTracksFromFoldersAsync(
+        IEnumerable<string> folderKeys,
+        CancellationToken cancellationToken = default);
 }

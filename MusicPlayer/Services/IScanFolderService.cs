@@ -12,7 +12,15 @@ public interface IScanFolderService
 
     IReadOnlyList<string> GetEffectiveFolders();
 
+    /// <summary>
+    /// Folders the user removed from the scan list. They are kept as a cache so
+    /// the tracks they contributed can be purged from the library on demand.
+    /// </summary>
+    IReadOnlyList<string> GetRemovedFolders();
+
     void AddFolder(string folder);
 
     void RemoveFolder(string folder);
+
+    void ClearRemovedFolders();
 }
