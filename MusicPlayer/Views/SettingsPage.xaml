@@ -74,6 +74,26 @@
                         Command="{Binding PickFileCommand}" />
             </HorizontalStackLayout>
 
+            <VerticalStackLayout IsVisible="{Binding HasRemovedFolders}"
+                                 Spacing="6">
+                <BoxView HeightRequest="1"
+                         Color="{DynamicResource BorderColor}" />
+                <Label Text="{Binding RemovedFoldersSection}"
+                       FontSize="20"
+                       FontAttributes="Bold" />
+                <Label Text="{Binding RemovedFoldersHint}"
+                       FontSize="14"
+                       TextColor="{DynamicResource TextSecondary}" />
+                <Label Text="{Binding RemovedFoldersText}"
+                       FontSize="12"
+                       TextColor="{DynamicResource TextSecondary}"
+                       LineBreakMode="WordWrap" />
+                <Button AutomationId="ClearRemovedTracksButton"
+                        Text="{Binding ClearRemovedLabel}"
+                        Command="{Binding ClearRemovedTracksCommand}"
+                        HorizontalOptions="Start" />
+            </VerticalStackLayout>
+
             <ActivityIndicator IsRunning="{Binding IsScanning}"
                                IsVisible="{Binding IsScanning}"
                                HorizontalOptions="Start"

@@ -91,4 +91,10 @@
   <data name="SearchTracksPlaceholder" xml:space="preserve"><value>Search tracks</value></data>
   <data name="AudioFilePickerTitle" xml:space="preserve"><value>Select an audio file</value></data>
   <data name="UnsupportedFormat" xml:space="preserve"><value>Unsupported file format '{0}'.</value></data>
+  <data name="RemovedFoldersSection" xml:space="preserve"><value>Deleted folders</value></data>
+  <data name="RemovedFoldersHint" xml:space="preserve"><value>Tracks from these folders stay in the library. You can remove them:</value></data>
+  <data name="ClearRemovedTracksButton" xml:space="preserve"><value>Remove tracks</value></data>
+  <data name="ClearRemovedConfirmTitle" xml:space="preserve"><value>Remove tracks?</value></data>
+  <data name="ClearRemovedConfirmMessage" xml:space="preserve"><value>Tracks from {0} deleted folder(s) will be removed from the library. Selected folders are not affected.</value></data>
+  <data name="ClearRemovedCompletedFormat" xml:space="preserve"><value>Tracks removed: {0}</value></data>
 </root>
