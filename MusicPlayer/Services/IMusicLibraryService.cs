@@ -7,6 +7,12 @@ namespace MusicPlayer.Services;
 /// </summary>
 public interface IMusicLibraryService
 {
+    /// <summary>
+    /// Raised after tracks are inserted or updated. Observers reload their
+    /// collections so a scan performed anywhere is reflected in the UI.
+    /// </summary>
+    event EventHandler? TracksChanged;
+
     Task<IReadOnlyList<Track>> SaveTracksAsync(
         IEnumerable<Track> tracks,
         CancellationToken cancellationToken = default);

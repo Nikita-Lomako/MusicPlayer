@@ -8,6 +8,8 @@ public sealed class MusicLibraryService : IMusicLibraryService
 
     public MusicLibraryService(MusicDatabase database) => _database = database;
 
+    public event EventHandler? TracksChanged;
+
     public async Task<IReadOnlyList<Track>> SaveTracksAsync(
         IEnumerable<Track> tracks,
         CancellationToken cancellationToken = default)
@@ -47,6 +49,11 @@ public sealed class MusicLibraryService : IMusicLibraryService
             }
 
             saved.Add(track);
+        }
+
+        if (saved.Count > 0)
+        {
+            TracksChanged?.Invoke(this, EventArgs.Empty);
         }
 
         return saved;
