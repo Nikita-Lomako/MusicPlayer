@@ -89,4 +89,6 @@
   <data name="PlaylistNameRequired" xml:space="preserve"><value>Введите название плейлиста</value></data>
   <data name="LibraryTracksPickerTitle" xml:space="preserve"><value>Все треки медиатеки</value></data>
   <data name="SearchTracksPlaceholder" xml:space="preserve"><value>Поиск треков</value></data>
+  <data name="AudioFilePickerTitle" xml:space="preserve"><value>Выберите аудиофайл</value></data>
+  <data name="UnsupportedFormat" xml:space="preserve"><value>Формат файла '{0}' не поддерживается.</value></data>
 </root>

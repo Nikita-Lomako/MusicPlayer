@@ -19,6 +19,13 @@ public sealed partial class MediaScannerService : IMediaScannerService
         [DevicePlatform.WinUI] = AudioExtensions
     });
 
+    private readonly ILocalizationService _localizationService;
+
+    public MediaScannerService(ILocalizationService localizationService)
+    {
+        _localizationService = localizationService;
+    }
+
     public IReadOnlyCollection<string> SupportedExtensions => ReadOnlyAudioExtensions;
 
     public async Task<IReadOnlyList<Track>> ScanFoldersAsync(
@@ -65,7 +72,7 @@ public sealed partial class MediaScannerService : IMediaScannerService
         var result = await MainThread.InvokeOnMainThreadAsync(
             () => FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Выберите аудиофайл",
+                PickerTitle = _localizationService["AudioFilePickerTitle"],
                 FileTypes = AudioFileType
             }));
 
@@ -77,7 +84,9 @@ public sealed partial class MediaScannerService : IMediaScannerService
         var extension = Path.GetExtension(result.FileName);
         if (!IsSupportedExtension(extension))
         {
-            throw new InvalidDataException($"Формат файла '{extension}' не поддерживается.");
+            throw new InvalidDataException(string.Format(
+                _localizationService["UnsupportedFormat"],
+                extension));
         }
 
         var importDirectory = Path.Combine(FileSystem.AppDataDirectory, "ImportedAudio");

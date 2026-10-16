@@ -89,4 +89,6 @@
   <data name="PlaylistNameRequired" xml:space="preserve"><value>Enter a playlist name</value></data>
   <data name="LibraryTracksPickerTitle" xml:space="preserve"><value>All library tracks</value></data>
   <data name="SearchTracksPlaceholder" xml:space="preserve"><value>Search tracks</value></data>
+  <data name="AudioFilePickerTitle" xml:space="preserve"><value>Select an audio file</value></data>
+  <data name="UnsupportedFormat" xml:space="preserve"><value>Unsupported file format '{0}'.</value></data>
 </root>
