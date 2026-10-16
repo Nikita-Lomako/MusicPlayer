@@ -13,6 +13,13 @@ public interface IMusicLibraryService
     /// </summary>
     event EventHandler? TracksChanged;
 
+    /// <summary>
+    /// Raised after tracks are deleted, carrying the ids of the removed
+    /// tracks. The playback queue listens to this so a deleted track can no
+    /// longer be reached with the next / previous controls.
+    /// </summary>
+    event EventHandler<TracksRemovedEventArgs>? TracksRemoved;
+
     Task<IReadOnlyList<Track>> SaveTracksAsync(
         IEnumerable<Track> tracks,
         CancellationToken cancellationToken = default);
@@ -32,4 +39,12 @@ public interface IMusicLibraryService
     Task<int> RemoveTracksFromFoldersAsync(
         IEnumerable<string> folderKeys,
         CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// Identifiers of the tracks that were just deleted from the library.
+/// </summary>
+public sealed class TracksRemovedEventArgs(IReadOnlyList<int> trackIds) : EventArgs
+{
+    public IReadOnlyList<int> TrackIds { get; } = trackIds;
 }

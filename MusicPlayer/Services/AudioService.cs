@@ -10,6 +10,7 @@ namespace MusicPlayer.Services;
 public sealed class AudioService : IAudioService
 {
     private readonly IHistoryService _historyService;
+    private readonly IMusicLibraryService _musicLibrary;
     private readonly List<Track> _sourceQueue = [];
     private List<Track> _queue = [];
     private IReadOnlyList<Track> _queueView = Array.Empty<Track>();
@@ -23,9 +24,11 @@ public sealed class AudioService : IAudioService
     private TimeSpan _duration;
     private PlaybackRepeatMode _repeatMode;
 
-    public AudioService(IHistoryService historyService)
+    public AudioService(IHistoryService historyService, IMusicLibraryService musicLibrary)
     {
         _historyService = historyService;
+        _musicLibrary = musicLibrary;
+        _musicLibrary.TracksRemoved += OnTracksRemoved;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -485,6 +488,73 @@ public sealed class AudioService : IAudioService
             || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
             ? MediaSource.FromUri(uri)
             : MediaSource.FromFile(path);
+
+    private void OnTracksRemoved(object? sender, TracksRemovedEventArgs eventArgs)
+    {
+        if (eventArgs.TrackIds.Count == 0)
+        {
+            return;
+        }
+
+        var removed = new HashSet<int>(eventArgs.TrackIds);
+        MainThread.BeginInvokeOnMainThread(() => RemoveTracksFromQueue(removed));
+    }
+
+    private void RemoveTracksFromQueue(HashSet<int> removed)
+    {
+        var current = CurrentTrack;
+        var sourceRemoved = _sourceQueue.RemoveAll(track => removed.Contains(track.Id));
+        var queueRemoved = _queue.RemoveAll(track => removed.Contains(track.Id));
+        if (sourceRemoved == 0 && queueRemoved == 0)
+        {
+            return;
+        }
+
+        if (_queue.Count == 0)
+        {
+            // Nothing playable is left; reuse the existing reset path.
+            _ = SetQueueAsync(Array.Empty<Track>());
+            return;
+        }
+
+        var currentWasRemoved = current is not null && removed.Contains(current.Id);
+        if (currentWasRemoved)
+        {
+            _currentIndex = Math.Clamp(_currentIndex, 0, _queue.Count - 1);
+        }
+        else
+        {
+            var index = FindTrackIndex(_queue, current!);
+            _currentIndex = index >= 0 ? index : Math.Clamp(_currentIndex, 0, _queue.Count - 1);
+        }
+
+        _queueView = _queue.AsReadOnly();
+
+        if (currentWasRemoved)
+        {
+            ReloadCurrentTrack();
+        }
+
+        NotifyQueueChanged();
+    }
+
+    private void ReloadCurrentTrack()
+    {
+        if (_player is null || CurrentTrack is not { } track)
+        {
+            return;
+        }
+
+        _position = TimeSpan.Zero;
+        _duration = track.Duration;
+        _player.ShouldAutoPlay = _shouldPlayWhenOpened;
+        _player.Source = CreateSource(track.FilePath);
+        _player.MetadataTitle = track.Title;
+        _player.MetadataArtist = track.Artist;
+        _player.MetadataArtworkUrl = track.ArtworkPath ?? string.Empty;
+        OnPropertyChanged(nameof(Position));
+        OnPropertyChanged(nameof(Duration));
+    }
 
     private void NotifyQueueChanged()
     {
