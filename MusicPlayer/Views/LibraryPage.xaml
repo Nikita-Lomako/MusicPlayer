@@ -28,9 +28,9 @@
                        Text="{Binding SearchText, Mode=TwoWay}"
                        Placeholder="{Binding SearchPlaceholder}"
                        SearchButtonPressed="OnSearchButtonPressed"
-                       Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                       PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                       BackgroundColor="{DynamicResource Surface}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       PlaceholderColor="{DynamicResource TextSecondary}" />
             <ImageButton Grid.Column="1"
                          AutomationId="RescanLibraryButton"
                          Source="refresh.png"
@@ -69,7 +69,7 @@
         <Label Grid.Row="2"
                Text="{Binding ErrorMessage}"
                IsVisible="{Binding HasError}"
-               TextColor="#D43F3A"
+               TextColor="{DynamicResource Error}"
                FontSize="13" />
 
         <Grid Grid.Row="3">
@@ -82,7 +82,7 @@
                                 Padding="8"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 8"
-                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                                BackgroundColor="{DynamicResource Surface}">
                             <Grid ColumnDefinitions="56,*,Auto,Auto"
                                   ColumnSpacing="12">
                                 <Border Grid.Column="0"
@@ -90,13 +90,13 @@
                                         HeightRequest="56"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 6"
-                                        Background="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+                                        BackgroundColor="{DynamicResource SurfaceAlt}">
                                     <Grid>
                                         <Label Text="♪"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center"
                                                FontSize="24"
-                                               TextColor="{StaticResource Accent}" />
+                                               TextColor="{DynamicResource Accent}" />
                                         <Image Source="{Binding ArtworkPath}"
                                                Aspect="AspectFill" />
                                     </Grid>
@@ -113,13 +113,13 @@
                                            MaxLines="1"
                                            LineBreakMode="TailTruncation"
                                            FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                           TextColor="{DynamicResource TextSecondary}" />
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2"
                                        Text="{Binding Duration, StringFormat='{0:mm\\:ss}'}"
                                        VerticalOptions="Center"
                                        FontSize="13"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                       TextColor="{DynamicResource TextSecondary}" />
                                 <ImageButton Grid.Column="3"
                                              Source="info.png"
                                              WidthRequest="36"
@@ -158,7 +158,7 @@
                                IsVisible="{Binding IsBusy}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
-                               Color="{StaticResource Accent}" />
+                               Color="{DynamicResource Accent}" />
         </Grid>
 
         <controls:MiniPlayerView Grid.Row="4" />

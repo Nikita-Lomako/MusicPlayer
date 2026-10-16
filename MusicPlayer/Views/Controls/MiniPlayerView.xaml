@@ -8,7 +8,7 @@
     <Border Padding="12"
             StrokeThickness="0"
             StrokeShape="RoundRectangle 8"
-            Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+            BackgroundColor="{DynamicResource Surface}">
         <Grid ColumnDefinitions="*,Auto,Auto"
               ColumnSpacing="12">
             <Grid Grid.Column="0"
@@ -23,7 +23,7 @@
                        MaxLines="1"
                        LineBreakMode="TailTruncation"
                        FontSize="12"
-                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                       TextColor="{DynamicResource TextSecondary}" />
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding OpenPlayerCommand}" />
                 </Grid.GestureRecognizers>

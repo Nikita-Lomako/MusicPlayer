@@ -30,7 +30,7 @@
                     Text="{Binding AddTracksLabel}"
                     IsVisible="{Binding IsSystemPlaylist, Converter={StaticResource InvertedBoolConverter}}"
                     BackgroundColor="Transparent"
-                    TextColor="{StaticResource Accent}"
+                    TextColor="{DynamicResource Accent}"
                     Command="{Binding ToggleLibraryPickerCommand}" />
         </Grid>
 
@@ -39,7 +39,7 @@
                 Padding="10"
                 StrokeThickness="0"
                 StrokeShape="RoundRectangle 8"
-                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                BackgroundColor="{DynamicResource Surface}">
             <VerticalStackLayout Spacing="8">
                 <SearchBar AutomationId="PlaylistLibrarySearch"
                            Text="{Binding SearchText, Mode=TwoWay}"
@@ -62,7 +62,7 @@
                                            LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding Track.Artist}"
                                            FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                           TextColor="{DynamicResource TextSecondary}"
                                            MaxLines="1"
                                            LineBreakMode="TailTruncation" />
                                 </VerticalStackLayout>
@@ -85,7 +85,7 @@
                Text="{Binding DoneLabel}"
                IsVisible="{Binding IsLibraryPickerVisible}"
                HorizontalOptions="End"
-               TextColor="{StaticResource Accent}">
+               TextColor="{DynamicResource Accent}">
             <Label.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding ToggleLibraryPickerCommand}" />
             </Label.GestureRecognizers>
@@ -101,7 +101,7 @@
                                 Padding="8"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 8"
-                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                                BackgroundColor="{DynamicResource Surface}">
                             <Grid ColumnDefinitions="*,Auto"
                                   ColumnSpacing="8">
                                 <VerticalStackLayout Grid.Column="0"
@@ -114,7 +114,7 @@
                                            LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding Artist}"
                                            FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                           TextColor="{DynamicResource TextSecondary}"
                                            MaxLines="1"
                                            LineBreakMode="TailTruncation" />
                                 </VerticalStackLayout>
@@ -147,7 +147,7 @@
                                IsVisible="{Binding IsBusy}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
-                               Color="{StaticResource Accent}" />
+                               Color="{DynamicResource Accent}" />
         </Grid>
 
         <controls:MiniPlayerView Grid.Row="4" />

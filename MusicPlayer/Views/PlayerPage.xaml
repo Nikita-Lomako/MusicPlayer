@@ -16,7 +16,7 @@
                         HorizontalOptions="Center"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 16"
-                        Background="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+                        BackgroundColor="{DynamicResource SurfaceAlt}">
                     <Grid>
                         <Image Source="note.png"
                                WidthRequest="96"
@@ -40,7 +40,7 @@
                     <Label Text="{Binding Artist}"
                            FontSize="15"
                            HorizontalTextAlignment="Center"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                           TextColor="{DynamicResource TextSecondary}"
                            MaxLines="1"
                            LineBreakMode="TailTruncation" />
                 </VerticalStackLayout>
@@ -51,7 +51,7 @@
                            Text="{Binding PositionText}"
                            VerticalOptions="Center"
                            FontSize="12"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                           TextColor="{DynamicResource TextSecondary}" />
                     <Slider Grid.Column="1"
                             AutomationId="PlayerSeekSlider"
                             Minimum="0"
@@ -61,7 +61,7 @@
                            Text="{Binding DurationText}"
                            VerticalOptions="Center"
                            FontSize="12"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                           TextColor="{DynamicResource TextSecondary}" />
                 </Grid>
 
                 <Grid ColumnDefinitions="Auto,*"
@@ -135,7 +135,7 @@
                         IsEnabled="{Binding HasTrack}"
                         HorizontalOptions="Center"
                         BackgroundColor="Transparent"
-                        TextColor="{StaticResource Accent}" />
+                        TextColor="{DynamicResource Accent}" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MusicPlayer.Services;
 
 namespace MusicPlayer
 {
@@ -11,7 +12,16 @@ namespace MusicPlayer
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var window = new Window(new AppShell());
+
+            // Apply the saved theme before the shell renders so there is no flash
+            // of the wrong palette on startup.
+            if (IPlatformApplication.Current?.Services.GetService<IThemeService>() is { } themeService)
+            {
+                themeService.ApplyCurrentTheme();
+            }
+
+            return window;
         }
     }
 }
