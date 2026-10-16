@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:models="clr-namespace:MusicPlayer.Models"
              xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             xmlns:controls="clr-namespace:MusicPlayer.Views.Controls"
              x:Class="MusicPlayer.Views.LibraryPage"
              x:DataType="vm:LibraryViewModel"
              Title="{Binding LibraryTitle}">
@@ -27,9 +28,9 @@
                        Text="{Binding SearchText, Mode=TwoWay}"
                        Placeholder="{Binding SearchPlaceholder}"
                        SearchButtonPressed="OnSearchButtonPressed"
-                       Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-                       TextColor="{AppThemeBinding Light={StaticResource TextPrimaryLight}, Dark={StaticResource TextPrimaryDark}}"
-                       PlaceholderColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                       BackgroundColor="{DynamicResource Surface}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       PlaceholderColor="{DynamicResource TextSecondary}" />
             <ImageButton Grid.Column="1"
                          AutomationId="RescanLibraryButton"
                          Source="refresh.png"
@@ -68,7 +69,7 @@
         <Label Grid.Row="2"
                Text="{Binding ErrorMessage}"
                IsVisible="{Binding HasError}"
-               TextColor="#D43F3A"
+               TextColor="{DynamicResource Error}"
                FontSize="13" />
 
         <Grid Grid.Row="3">
@@ -81,7 +82,7 @@
                                 Padding="8"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 8"
-                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                                BackgroundColor="{DynamicResource Surface}">
                             <Grid ColumnDefinitions="56,*,Auto,Auto"
                                   ColumnSpacing="12">
                                 <Border Grid.Column="0"
@@ -89,13 +90,13 @@
                                         HeightRequest="56"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 6"
-                                        Background="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+                                        BackgroundColor="{DynamicResource SurfaceAlt}">
                                     <Grid>
                                         <Label Text="♪"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center"
                                                FontSize="24"
-                                               TextColor="{StaticResource Accent}" />
+                                               TextColor="{DynamicResource Accent}" />
                                         <Image Source="{Binding ArtworkPath}"
                                                Aspect="AspectFill" />
                                     </Grid>
@@ -112,13 +113,13 @@
                                            MaxLines="1"
                                            LineBreakMode="TailTruncation"
                                            FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                           TextColor="{DynamicResource TextSecondary}" />
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2"
                                        Text="{Binding Duration, StringFormat='{0:mm\\:ss}'}"
                                        VerticalOptions="Center"
                                        FontSize="13"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                       TextColor="{DynamicResource TextSecondary}" />
                                 <ImageButton Grid.Column="3"
                                              Source="info.png"
                                              WidthRequest="36"
@@ -157,53 +158,9 @@
                                IsVisible="{Binding IsBusy}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
-                               Color="{StaticResource Accent}" />
+                               Color="{DynamicResource Accent}" />
         </Grid>
 
-        <Border Grid.Row="4"
-                IsVisible="{Binding IsMiniPlayerVisible}"
-                Padding="12"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 8"
-                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
-            <Grid ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="12">
-                <Grid Grid.Column="0"
-                      RowDefinitions="Auto,Auto"
-                      RowSpacing="2">
-                    <Label Text="{Binding MiniPlayerTitle}"
-                           MaxLines="1"
-                           LineBreakMode="TailTruncation"
-                           FontAttributes="Bold" />
-                    <Label Grid.Row="1"
-                           Text="{Binding MiniPlayerArtist}"
-                           MaxLines="1"
-                           LineBreakMode="TailTruncation"
-                           FontSize="12"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding OpenPlayerCommand}" />
-                    </Grid.GestureRecognizers>
-                </Grid>
-                <ImageButton Grid.Column="1"
-                             AutomationId="MiniPlayerPlayPauseButton"
-                             Source="{Binding PlayPauseIcon}"
-                             WidthRequest="44"
-                             HeightRequest="44"
-                             Padding="10"
-                             Background="Transparent"
-                             Command="{Binding TogglePlaybackCommand}"
-                             SemanticProperties.Description="{Binding PlayLabel}" />
-                <ImageButton Grid.Column="2"
-                             AutomationId="MiniPlayerNextButton"
-                             Source="next.png"
-                             WidthRequest="44"
-                             HeightRequest="44"
-                             Padding="10"
-                             Background="Transparent"
-                             Command="{Binding NextCommand}"
-                             SemanticProperties.Description="{Binding NextLabel}" />
-            </Grid>
-        </Border>
+        <controls:MiniPlayerView Grid.Row="4" />
     </Grid>
 </ContentPage>

@@ -6,9 +6,9 @@
     xmlns:views="clr-namespace:MusicPlayer.Views"
     Shell.FlyoutBehavior="Disabled"
     Title="Музыка"
-    Shell.TabBarBackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}"
-    Shell.TabBarForegroundColor="{StaticResource Accent}"
-    Shell.TabBarUnselectedColor="{AppThemeBinding Light={StaticResource TabInactiveLight}, Dark={StaticResource TabInactiveDark}}">
+    Shell.TabBarBackgroundColor="{DynamicResource Surface}"
+    Shell.TabBarForegroundColor="{DynamicResource Accent}"
+    Shell.TabBarUnselectedColor="{DynamicResource TabInactive}">
 
     <TabBar>
         <ShellContent

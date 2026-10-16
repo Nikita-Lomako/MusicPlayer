@@ -36,8 +36,8 @@
 		<ApplicationId>com.companyname.musicplayer</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>1.4</ApplicationDisplayVersion>
+		<ApplicationVersion>5</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -49,12 +49,28 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#17171a" />
+	<!-- Android packaging size:
+	     * RuntimeIdentifiers = android-arm64: ship only the 64-bit ARM native
+	       payload. The default package also carries x86_64 native libraries
+	       (only needed by emulators), which roughly doubles the native part.
+	     * RunAOTCompilation = false: skip AOT entirely, which drops every
+	       libaot-*.so native image (~10 MB). Startup is slightly slower.
+	       WARNING: AndroidEnableProfiledAot=false on its own does not shrink
+	       the package - without a profile the whole assembly gets AOT-compiled,
+	       so the AOT images end up bigger, not smaller. -->
+	<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+	</PropertyGroup>
 
-		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#17171a" BaseSize="128,128" />
+	<ItemGroup>
+		<!-- App Icon: the background layer is transparent, so the launcher shows
+		     the logo on its own backdrop instead of a white square. -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.png" Color="Transparent" />
+
+		<!-- Splash Screen: transparent background so launching does not flash white. -->
+		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="Transparent" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />

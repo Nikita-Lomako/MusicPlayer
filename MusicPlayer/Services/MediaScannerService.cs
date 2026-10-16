@@ -19,6 +19,13 @@ public sealed partial class MediaScannerService : IMediaScannerService
         [DevicePlatform.WinUI] = AudioExtensions
     });
 
+    private readonly ILocalizationService _localizationService;
+
+    public MediaScannerService(ILocalizationService localizationService)
+    {
+        _localizationService = localizationService;
+    }
+
     public IReadOnlyCollection<string> SupportedExtensions => ReadOnlyAudioExtensions;
 
     public async Task<IReadOnlyList<Track>> ScanFoldersAsync(
@@ -41,6 +48,14 @@ public sealed partial class MediaScannerService : IMediaScannerService
             .Where(static folder => !string.IsNullOrWhiteSpace(folder))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
+
+        // The user controls what gets scanned: no folders means no scan. This
+        // also prevents the Android MediaStore query from walking the whole
+        // device when nothing was selected.
+        if (folderList.Length == 0)
+        {
+            return Array.Empty<Track>();
+        }
 
     #if ANDROID
         if (!OperatingSystem.IsAndroidVersionAtLeast(29))
@@ -65,7 +80,7 @@ public sealed partial class MediaScannerService : IMediaScannerService
         var result = await MainThread.InvokeOnMainThreadAsync(
             () => FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Выберите аудиофайл",
+                PickerTitle = _localizationService["AudioFilePickerTitle"],
                 FileTypes = AudioFileType
             }));
 
@@ -77,7 +92,9 @@ public sealed partial class MediaScannerService : IMediaScannerService
         var extension = Path.GetExtension(result.FileName);
         if (!IsSupportedExtension(extension))
         {
-            throw new InvalidDataException($"Формат файла '{extension}' не поддерживается.");
+            throw new InvalidDataException(string.Format(
+                _localizationService["UnsupportedFormat"],
+                extension));
         }
 
         var importDirectory = Path.Combine(FileSystem.AppDataDirectory, "ImportedAudio");
@@ -156,7 +173,9 @@ public sealed partial class MediaScannerService : IMediaScannerService
 
                     try
                     {
-                        tracks.Add(ReadTrack(filePath, Path.GetFileNameWithoutExtension(filePath)));
+                        var track = ReadTrack(filePath, Path.GetFileNameWithoutExtension(filePath));
+                        track.SourceFolder = NormalizeFolderKey(Path.GetDirectoryName(filePath));
+                        tracks.Add(track);
                     }
                     catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or TagLib.CorruptFileException or TagLib.UnsupportedFormatException)
                     {
@@ -230,6 +249,24 @@ public sealed partial class MediaScannerService : IMediaScannerService
 
     private static bool IsSupportedExtension(string extension) =>
         AudioExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Canonical folder key used on <see cref="Track.SourceFolder"/>. Forward
+    /// slashes and no trailing separator so comparisons are platform agnostic.
+    /// </summary>
+    internal static string NormalizeFolderKey(string? folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return string.Empty;
+        }
+
+        return folder.Trim().Replace('\\', '/').Trim('/');
+    }
+
+#if !ANDROID
+    public string GetFolderKey(string folder) => NormalizeFolderKey(folder);
+#endif
 
 #if ANDROID
     private sealed class ReadAudioPermission : Permissions.BasePlatformPermission

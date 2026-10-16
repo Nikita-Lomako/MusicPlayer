@@ -47,5 +47,12 @@ public sealed class Track
     [MaxLength(2048)]
     public string? ArtworkPath { get; set; }
 
+    /// <summary>
+    /// Normalized key of the folder this track was scanned from. Used to drop
+    /// the tracks contributed by a folder the user removed from the scan list.
+    /// </summary>
+    [MaxLength(1024)]
+    public string? SourceFolder { get; set; }
+
     public DateTime AddedAtUtc { get; set; } = DateTime.UtcNow;
 }

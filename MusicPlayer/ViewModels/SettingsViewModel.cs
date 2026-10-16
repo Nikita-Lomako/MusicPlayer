@@ -29,17 +29,8 @@ public sealed partial class SettingsViewModel : ObservableObject
         _mediaScannerService = mediaScannerService;
         _musicLibrary = musicLibrary;
 
-        ThemeOptions =
-        [
-            new ThemeOption(ThemeMode.System, _localizationService["ThemeSystem"]),
-            new ThemeOption(ThemeMode.Light, _localizationService["ThemeLight"]),
-            new ThemeOption(ThemeMode.Dark, _localizationService["ThemeDark"])
-        ];
-        LanguageOptions =
-        [
-            new LanguageOption("ru-RU", _localizationService["LanguageRussian"]),
-            new LanguageOption("en-US", _localizationService["LanguageEnglish"])
-        ];
+        ThemeOptions = BuildThemeOptions();
+        LanguageOptions = BuildLanguageOptions();
 
         _updatingSelection = true;
         SelectedThemeOption = ThemeOptions.First(option => option.Mode == _themeService.CurrentMode);
@@ -52,9 +43,11 @@ public sealed partial class SettingsViewModel : ObservableObject
         _localizationService.LanguageChanged += OnLanguageChanged;
     }
 
-    public ObservableCollection<ThemeOption> ThemeOptions { get; }
+    [ObservableProperty]
+    private ObservableCollection<ThemeOption> themeOptions = [];
 
-    public ObservableCollection<LanguageOption> LanguageOptions { get; }
+    [ObservableProperty]
+    private ObservableCollection<LanguageOption> languageOptions = [];
 
     public ObservableCollection<string> ScanFolders { get; }
 
@@ -78,9 +71,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     public string NoFoldersHint => _localizationService["NoFoldersSelected"];
 
+    public string RemovedFoldersSection => _localizationService["RemovedFoldersSection"];
+
+    public string RemovedFoldersHint => _localizationService["RemovedFoldersHint"];
+
+    public string ClearRemovedLabel => _localizationService["ClearRemovedTracksButton"];
+
     public bool HasFolders => ScanFolders.Count > 0;
 
     public bool HasStatus => !string.IsNullOrWhiteSpace(StatusMessage);
+
+    public bool HasRemovedFolders => !string.IsNullOrWhiteSpace(RemovedFoldersText);
 
     [ObservableProperty]
     private ThemeOption? selectedThemeOption;
@@ -94,7 +95,12 @@ public sealed partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string? statusMessage;
 
+    [ObservableProperty]
+    private string? removedFoldersText;
+
     partial void OnStatusMessageChanged(string? value) => OnPropertyChanged(nameof(HasStatus));
+
+    partial void OnRemovedFoldersTextChanged(string? value) => OnPropertyChanged(nameof(HasRemovedFolders));
 
     partial void OnSelectedThemeOptionChanged(ThemeOption? value)
     {
@@ -191,6 +197,44 @@ public sealed partial class SettingsViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task ClearRemovedTracksAsync()
+    {
+        var removedFolders = _scanFolderService.GetRemovedFolders();
+        if (removedFolders.Count == 0)
+        {
+            return;
+        }
+
+        var confirmed = await Shell.Current.DisplayAlertAsync(
+            _localizationService["ClearRemovedConfirmTitle"],
+            string.Format(_localizationService["ClearRemovedConfirmMessage"], removedFolders.Count),
+            _localizationService["ConfirmButton"],
+            _localizationService["CancelButton"]);
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        try
+        {
+            var keys = removedFolders
+                .Select(_mediaScannerService.GetFolderKey)
+                .Where(static key => !string.IsNullOrWhiteSpace(key))
+                .ToArray();
+
+            var removed = await _musicLibrary.RemoveTracksFromFoldersAsync(keys);
+            _scanFolderService.ClearRemovedFolders();
+            RefreshFolders();
+            StatusMessage = string.Format(_localizationService["ClearRemovedCompletedFormat"], removed);
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException)
+        {
+            StatusMessage = exception.Message;
+        }
+    }
+
     private void RefreshFolders()
     {
         ScanFolders.Clear();
@@ -198,6 +242,11 @@ public sealed partial class SettingsViewModel : ObservableObject
         {
             ScanFolders.Add(folder);
         }
+
+        var removed = _scanFolderService.GetRemovedFolders();
+        RemovedFoldersText = removed.Count == 0
+            ? null
+            : string.Join(Environment.NewLine, removed);
 
         OnPropertyChanged(nameof(HasFolders));
     }
@@ -207,24 +256,17 @@ public sealed partial class SettingsViewModel : ObservableObject
 
     private void RefreshLocalizedText()
     {
-        ThemeOptions.First(option => option.Mode == ThemeMode.System).Name = _localizationService["ThemeSystem"];
-        ThemeOptions.First(option => option.Mode == ThemeMode.Light).Name = _localizationService["ThemeLight"];
-        ThemeOptions.First(option => option.Mode == ThemeMode.Dark).Name = _localizationService["ThemeDark"];
-        LanguageOptions.First(option => option.CultureName == "ru-RU").Name = _localizationService["LanguageRussian"];
-        LanguageOptions.First(option => option.CultureName == "en-US").Name = _localizationService["LanguageEnglish"];
+        // Rebuild the option collections so the pickers re-read the localized
+        // labels. The MAUI Picker caches the display text of its items, so
+        // mutating the option name alone does not refresh a visible dropdown.
+        ThemeOptions = BuildThemeOptions();
+        LanguageOptions = BuildLanguageOptions();
 
         _updatingSelection = true;
-        var theme = SelectedThemeOption;
-        SelectedThemeOption = null;
-        SelectedThemeOption = theme;
-
-        var language = SelectedLanguageOption;
-        SelectedLanguageOption = null;
-        SelectedLanguageOption = language;
+        SelectedThemeOption = ThemeOptions.First(option => option.Mode == _themeService.CurrentMode);
+        SelectedLanguageOption = LanguageOptions.First(option => option.CultureName == _localizationService.CurrentLanguage);
         _updatingSelection = false;
 
-        OnPropertyChanged(nameof(ThemeOptions));
-        OnPropertyChanged(nameof(LanguageOptions));
         OnPropertyChanged(nameof(AppearanceSection));
         OnPropertyChanged(nameof(ThemeLabel));
         OnPropertyChanged(nameof(LanguageSection));
@@ -235,7 +277,23 @@ public sealed partial class SettingsViewModel : ObservableObject
         OnPropertyChanged(nameof(RescanLabel));
         OnPropertyChanged(nameof(PickFileLabel));
         OnPropertyChanged(nameof(NoFoldersHint));
+        OnPropertyChanged(nameof(RemovedFoldersSection));
+        OnPropertyChanged(nameof(RemovedFoldersHint));
+        OnPropertyChanged(nameof(ClearRemovedLabel));
     }
+
+    private ObservableCollection<ThemeOption> BuildThemeOptions() =>
+    [
+        new ThemeOption(ThemeMode.System, _localizationService["ThemeSystem"]),
+        new ThemeOption(ThemeMode.Light, _localizationService["ThemeLight"]),
+        new ThemeOption(ThemeMode.Dark, _localizationService["ThemeDark"])
+    ];
+
+    private ObservableCollection<LanguageOption> BuildLanguageOptions() =>
+    [
+        new LanguageOption("ru-RU", _localizationService["LanguageRussian"]),
+        new LanguageOption("en-US", _localizationService["LanguageEnglish"])
+    ];
 }
 
 public sealed partial class ThemeOption : ObservableObject

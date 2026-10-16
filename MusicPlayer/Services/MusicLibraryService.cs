@@ -8,6 +8,10 @@ public sealed class MusicLibraryService : IMusicLibraryService
 
     public MusicLibraryService(MusicDatabase database) => _database = database;
 
+    public event EventHandler? TracksChanged;
+
+    public event EventHandler<TracksRemovedEventArgs>? TracksRemoved;
+
     public async Task<IReadOnlyList<Track>> SaveTracksAsync(
         IEnumerable<Track> tracks,
         CancellationToken cancellationToken = default)
@@ -49,6 +53,11 @@ public sealed class MusicLibraryService : IMusicLibraryService
             saved.Add(track);
         }
 
+        if (saved.Count > 0)
+        {
+            TracksChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         return saved;
     }
 
@@ -78,4 +87,54 @@ public sealed class MusicLibraryService : IMusicLibraryService
             .FirstOrDefaultAsync()
             .ConfigureAwait(false);
     }
+
+    public async Task<int> RemoveTracksFromFoldersAsync(
+        IEnumerable<string> folderKeys,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(folderKeys);
+
+        var keys = folderKeys
+            .Where(static key => !string.IsNullOrWhiteSpace(key))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (keys.Length == 0)
+        {
+            return 0;
+        }
+
+        var connection = await _database.GetConnectionAsync().ConfigureAwait(false);
+        var tracks = await connection.Table<Track>().ToListAsync().ConfigureAwait(false);
+        var targets = tracks
+            .Where(track => !string.IsNullOrWhiteSpace(track.SourceFolder)
+                && keys.Any(key => IsUnderFolder(track.SourceFolder!, key)))
+            .ToArray();
+
+        foreach (var track in targets)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await connection.Table<PlaylistTrack>()
+                .Where(link => link.TrackId == track.Id)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+            await connection.Table<PlayHistoryEntry>()
+                .Where(entry => entry.TrackId == track.Id)
+                .DeleteAsync()
+                .ConfigureAwait(false);
+            await connection.DeleteAsync(track).ConfigureAwait(false);
+        }
+
+        if (targets.Length > 0)
+        {
+            TracksRemoved?.Invoke(this, new TracksRemovedEventArgs(targets.Select(track => track.Id).ToArray()));
+            TracksChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        return targets.Length;
+    }
+
+    private static bool IsUnderFolder(string sourceFolder, string folderKey) =>
+        sourceFolder.Equals(folderKey, StringComparison.OrdinalIgnoreCase)
+        || sourceFolder.StartsWith(folderKey + "/", StringComparison.OrdinalIgnoreCase);
 }

@@ -106,7 +106,8 @@ public sealed partial class MediaScannerService
                 Duration = TimeSpan.FromMilliseconds(cursor.GetLong(durationIndex)),
                 FileSizeBytes = cursor.GetLong(sizeIndex),
                 Format = extension.TrimStart('.').ToLowerInvariant(),
-                AddedAtUtc = DateTimeOffset.FromUnixTimeSeconds(dateAddedSeconds).UtcDateTime
+                AddedAtUtc = DateTimeOffset.FromUnixTimeSeconds(dateAddedSeconds).UtcDateTime,
+                SourceFolder = NormalizeFolderKey(relativePath)
             };
 
             await EnrichFromTagLibAsync(resolver, contentUri, displayName, track, cancellationToken);
@@ -118,27 +119,98 @@ public sealed partial class MediaScannerService
 
     private static string[] GetRelativeFolders(IEnumerable<string> folders)
     {
-        var externalStoragePath = global::Android.OS.Environment.ExternalStorageDirectory?.AbsolutePath;
         return folders
-            .Where(static folder => !folder.Contains("://", StringComparison.Ordinal))
-            .Select(folder =>
-            {
-                var relativePath = !string.IsNullOrWhiteSpace(externalStoragePath)
-                    && folder.StartsWith(externalStoragePath, StringComparison.OrdinalIgnoreCase)
-                    ? Path.GetRelativePath(externalStoragePath, folder)
-                    : folder;
-
-                return relativePath
-                    .Replace('\\', '/')
-                    .Trim('/') + "/";
-            })
-            .Where(static folder => !string.IsNullOrWhiteSpace(folder) && folder != "./")
+            .Select(ComputeFolderKey)
+            .Where(static key => !string.IsNullOrWhiteSpace(key))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
 
-    private static bool IsInSelectedFolder(string relativePath, IReadOnlyCollection<string> folders) =>
-        folders.Count == 0 || folders.Any(folder => relativePath.StartsWith(folder, StringComparison.OrdinalIgnoreCase));
+    private static bool IsInSelectedFolder(string relativePath, IReadOnlyCollection<string> folders)
+    {
+        // Nothing selected -> nothing to scan. Never fall back to every track
+        // on the device just because the app can reach it.
+        if (folders.Count == 0)
+        {
+            return false;
+        }
+
+        var candidate = NormalizeFolderKey(relativePath);
+        if (string.IsNullOrWhiteSpace(candidate))
+        {
+            return false;
+        }
+
+        return folders.Any(folder => IsUnderFolder(candidate, folder));
+    }
+
+    private static bool IsUnderFolder(string candidate, string folder) =>
+        candidate.Equals(folder, StringComparison.OrdinalIgnoreCase)
+        || candidate.StartsWith(folder + "/", StringComparison.OrdinalIgnoreCase);
+
+    public string GetFolderKey(string folder) => ComputeFolderKey(folder);
+
+    private static string ComputeFolderKey(string folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder))
+        {
+            return string.Empty;
+        }
+
+        var value = folder.Trim();
+
+        // The picker normally returns a physical path, but older builds may
+        // have stored the raw SAF tree/document URI. Normalize either form.
+        if (value.Contains("://", StringComparison.Ordinal))
+        {
+            value = FromDocumentUri(value);
+        }
+
+        var externalStoragePath = global::Android.OS.Environment.ExternalStorageDirectory?.AbsolutePath;
+        if (!string.IsNullOrWhiteSpace(externalStoragePath)
+            && value.StartsWith(externalStoragePath, StringComparison.OrdinalIgnoreCase))
+        {
+            value = Path.GetRelativePath(externalStoragePath, value);
+        }
+        else
+        {
+            // Removable volume, e.g. /storage/1B0B-0B1C/Music -> Music.
+            var match = System.Text.RegularExpressions.Regex.Match(
+                value,
+                "^/storage/(?<volume>[^/]+)/(?<rest>.+)$");
+            if (match.Success
+                && !match.Groups["volume"].Value.Equals("emulated", StringComparison.OrdinalIgnoreCase))
+            {
+                value = match.Groups["rest"].Value;
+            }
+        }
+
+        return NormalizeFolderKey(value);
+    }
+
+    private static string FromDocumentUri(string uri)
+    {
+        var decoded = System.Uri.UnescapeDataString(uri);
+        var treeIndex = decoded.IndexOf("/tree/", StringComparison.OrdinalIgnoreCase);
+        if (treeIndex >= 0)
+        {
+            return StripVolumePrefix(decoded[(treeIndex + "/tree/".Length)..]);
+        }
+
+        var documentIndex = decoded.IndexOf("/document/", StringComparison.OrdinalIgnoreCase);
+        if (documentIndex >= 0)
+        {
+            return StripVolumePrefix(decoded[(documentIndex + "/document/".Length)..]);
+        }
+
+        return decoded;
+    }
+
+    private static string StripVolumePrefix(string value)
+    {
+        var colonIndex = value.IndexOf(':');
+        return colonIndex >= 0 ? value[(colonIndex + 1)..] : value;
+    }
 
     private static async Task EnrichFromTagLibAsync(
         ContentResolver resolver,

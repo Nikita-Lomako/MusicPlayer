@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -31,36 +30,19 @@ public sealed partial class LibraryViewModel : ObservableObject
         _localizationService = localizationService;
         Tracks = [];
         FilteredTracks = [];
-        SortOptions =
-        [
-            new TrackSortOption(TrackSortMode.Title, _localizationService["SortTitle"]),
-            new TrackSortOption(TrackSortMode.Artist, _localizationService["SortArtist"]),
-            new TrackSortOption(TrackSortMode.DateAdded, _localizationService["SortDate"]),
-            new TrackSortOption(TrackSortMode.Duration, _localizationService["SortDuration"])
-        ];
+        SortOptions = BuildSortOptions();
         SelectedSortOption = SortOptions[0];
 
-        _audioService.PropertyChanged += OnAudioServicePropertyChanged;
         _localizationService.LanguageChanged += OnLanguageChanged;
+        _musicLibrary.TracksChanged += OnLibraryTracksChanged;
     }
 
     public ObservableCollection<Track> Tracks { get; }
 
     public ObservableCollection<Track> FilteredTracks { get; }
 
-    public ObservableCollection<TrackSortOption> SortOptions { get; }
-
-    public Track? CurrentTrack => _audioService.CurrentTrack;
-
-    public bool IsPlaying => _audioService.IsPlaying;
-
-    public bool IsMiniPlayerVisible => CurrentTrack is not null;
-
-    public string MiniPlayerTitle => CurrentTrack?.Title ?? _localizationService["NoTrackPlaying"];
-
-    public string MiniPlayerArtist => CurrentTrack?.Artist ?? string.Empty;
-
-    public string PlayPauseIcon => _audioService.IsPlaying ? "pause.png" : "play.png";
+    [ObservableProperty]
+    private ObservableCollection<TrackSortOption> sortOptions = [];
 
     public string SearchPlaceholder => _localizationService["SearchPlaceholder"];
 
@@ -75,18 +57,6 @@ public sealed partial class LibraryViewModel : ObservableObject
     public string EmptyMessage => Tracks.Count == 0
         ? _localizationService["EmptyLibrary"]
         : _localizationService["NoSearchResults"];
-
-    public string PlayerTitle => _localizationService["PlayerTitle"];
-
-    public string PlayLabel => _localizationService["PlayButton"];
-
-    public string PauseLabel => _localizationService["PauseButton"];
-
-    public string NextLabel => _localizationService["NextButton"];
-
-    public string PreviousLabel => _localizationService["PreviousButton"];
-
-    public string ScanErrorLabel => _localizationService["ScanError"];
 
     public string TrackInfoLabel => _localizationService["TrackInfoLabel"];
 
@@ -120,10 +90,9 @@ public sealed partial class LibraryViewModel : ObservableObject
         _hasInitialized = true;
         await LoadFromLibraryAsync();
 
-        if (Tracks.Count == 0)
-        {
-            await ScanLibraryAsync();
-        }
+        // Always rescan the folders the user already added so the library
+        // reflects the file system on every launch.
+        await ScanLibraryAsync();
     }
 
     [RelayCommand]
@@ -146,7 +115,6 @@ public sealed partial class LibraryViewModel : ObservableObject
             }
 
             await _musicLibrary.SaveTracksAsync([track]);
-            await LoadFromLibraryAsync();
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidDataException)
         {
@@ -167,34 +135,6 @@ public sealed partial class LibraryViewModel : ObservableObject
         if (index >= 0)
         {
             await _audioService.SetQueueAsync(queue, index);
-        }
-    }
-
-    [RelayCommand]
-    private async Task TogglePlaybackAsync()
-    {
-        if (_audioService.IsPlaying)
-        {
-            await _audioService.PauseAsync();
-        }
-        else
-        {
-            await _audioService.PlayAsync();
-        }
-    }
-
-    [RelayCommand]
-    private Task NextAsync() => _audioService.NextAsync();
-
-    [RelayCommand]
-    private async Task PreviousAsync() => await _audioService.PreviousAsync();
-
-    [RelayCommand]
-    private async Task OpenPlayerAsync()
-    {
-        if (CurrentTrack is not null)
-        {
-            await Shell.Current.GoToAsync("player");
         }
     }
 
@@ -222,10 +162,9 @@ public sealed partial class LibraryViewModel : ObservableObject
             var scannedTracks = await _mediaScanner.ScanFoldersAsync(folders);
             if (scannedTracks.Count > 0)
             {
+                // MusicLibraryService raises TracksChanged, which reloads the list.
                 await _musicLibrary.SaveTracksAsync(scannedTracks);
             }
-
-            await LoadFromLibraryAsync();
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -278,40 +217,34 @@ public sealed partial class LibraryViewModel : ObservableObject
 
     private void OnLanguageChanged(object? sender, EventArgs eventArgs)
     {
-        SortOptions[0].Name = _localizationService["SortTitle"];
-        SortOptions[1].Name = _localizationService["SortArtist"];
-        SortOptions[2].Name = _localizationService["SortDate"];
-        SortOptions[3].Name = _localizationService["SortDuration"];
-        OnPropertyChanged(nameof(MiniPlayerTitle));
+        // Rebuild the sort options so the picker re-reads the localized labels.
+        // The MAUI Picker caches the display text of its items, so mutating the
+        // option name alone does not refresh a visible dropdown.
+        var mode = SelectedSortOption?.Mode ?? TrackSortMode.Title;
+        SortOptions = BuildSortOptions();
+        SelectedSortOption = SortOptions.First(option => option.Mode == mode);
+
         OnPropertyChanged(nameof(SearchPlaceholder));
         OnPropertyChanged(nameof(LibraryTitle));
         OnPropertyChanged(nameof(SortLabel));
         OnPropertyChanged(nameof(RescanLabel));
         OnPropertyChanged(nameof(AddFileLabel));
         OnPropertyChanged(nameof(EmptyMessage));
-        OnPropertyChanged(nameof(PlayerTitle));
-        OnPropertyChanged(nameof(PlayLabel));
-        OnPropertyChanged(nameof(PauseLabel));
-        OnPropertyChanged(nameof(NextLabel));
-        OnPropertyChanged(nameof(PreviousLabel));
-        OnPropertyChanged(nameof(ScanErrorLabel));
         OnPropertyChanged(nameof(TrackInfoLabel));
     }
 
-    private void OnAudioServicePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
-    {
-        if (eventArgs.PropertyName is nameof(IAudioService.CurrentTrack)
-            or nameof(IAudioService.IsPlaying))
-        {
-            OnPropertyChanged(nameof(CurrentTrack));
-            OnPropertyChanged(nameof(IsPlaying));
-            OnPropertyChanged(nameof(IsMiniPlayerVisible));
-            OnPropertyChanged(nameof(MiniPlayerTitle));
-            OnPropertyChanged(nameof(MiniPlayerArtist));
-            OnPropertyChanged(nameof(PlayPauseIcon));
-        }
-    }
+    private ObservableCollection<TrackSortOption> BuildSortOptions() =>
+    [
+        new TrackSortOption(TrackSortMode.Title, _localizationService["SortTitle"]),
+        new TrackSortOption(TrackSortMode.Artist, _localizationService["SortArtist"]),
+        new TrackSortOption(TrackSortMode.DateAdded, _localizationService["SortDate"]),
+        new TrackSortOption(TrackSortMode.Duration, _localizationService["SortDuration"])
+    ];
+
+    private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs) =>
+        MainThread.BeginInvokeOnMainThread(() => _ = LoadFromLibraryAsync());
 }
+
 
 public enum TrackSortMode
 {
