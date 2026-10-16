@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:MusicPlayer.Models"
              xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             xmlns:controls="clr-namespace:MusicPlayer.Views.Controls"
              x:Class="MusicPlayer.Views.PlaylistDetailPage"
              x:DataType="vm:PlaylistDetailViewModel"
              Title="{Binding PlaylistName}">
@@ -148,5 +149,7 @@
                                VerticalOptions="Center"
                                Color="{StaticResource Accent}" />
         </Grid>
+
+        <controls:MiniPlayerView Grid.Row="4" />
     </Grid>
 </ContentPage>

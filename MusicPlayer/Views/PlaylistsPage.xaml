@@ -2,11 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             xmlns:controls="clr-namespace:MusicPlayer.Views.Controls"
              x:Class="MusicPlayer.Views.PlaylistsPage"
              x:DataType="vm:PlaylistsViewModel"
              Title="{Binding Title}">
     <Grid Padding="16"
-          RowDefinitions="Auto,Auto,Auto,*"
+          RowDefinitions="Auto,Auto,Auto,*,Auto"
           RowSpacing="12">
 
         <Grid Grid.Row="0"
@@ -124,5 +125,7 @@
                                VerticalOptions="Center"
                                Color="{StaticResource Accent}" />
         </Grid>
+
+        <controls:MiniPlayerView Grid.Row="4" />
     </Grid>
 </ContentPage>

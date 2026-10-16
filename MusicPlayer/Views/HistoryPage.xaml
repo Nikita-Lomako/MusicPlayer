@@ -3,11 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:MusicPlayer.Models"
              xmlns:vm="clr-namespace:MusicPlayer.ViewModels"
+             xmlns:controls="clr-namespace:MusicPlayer.Views.Controls"
              x:Class="MusicPlayer.Views.HistoryPage"
              x:DataType="vm:HistoryViewModel"
              Title="{Binding Title}">
-    <Grid Padding="16">
-        <CollectionView AutomationId="HistoryTrackList"
+    <Grid Padding="16"
+          RowDefinitions="*,Auto"
+          RowSpacing="12">
+        <CollectionView Grid.Row="0"
+                        AutomationId="HistoryTrackList"
                         ItemsSource="{Binding Groups}"
                         IsGrouped="True"
                         SelectionMode="None">
@@ -60,16 +64,19 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-        <Label Text="{Binding EmptyMessage}"
+        <Label Grid.Row="0"
+               Text="{Binding EmptyMessage}"
                IsVisible="{Binding IsEmpty}"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                HorizontalTextAlignment="Center"
                FontSize="16" />
-        <ActivityIndicator IsRunning="{Binding IsBusy}"
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding IsBusy}"
                            IsVisible="{Binding IsBusy}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
                            Color="{StaticResource Accent}" />
+        <controls:MiniPlayerView Grid.Row="1" />
     </Grid>
 </ContentPage>
