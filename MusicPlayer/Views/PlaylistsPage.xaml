@@ -25,7 +25,7 @@
         <Label Grid.Row="1"
                Text="{Binding ErrorMessage}"
                IsVisible="{Binding HasError}"
-               TextColor="#D43F3A"
+               TextColor="{DynamicResource Error}"
                FontSize="13" />
 
         <Border Grid.Row="2"
@@ -33,7 +33,7 @@
                 Padding="12"
                 StrokeThickness="0"
                 StrokeShape="RoundRectangle 8"
-                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                BackgroundColor="{DynamicResource Surface}">
             <Grid ColumnDefinitions="*,Auto,Auto"
                   ColumnSpacing="8">
                 <Entry AutomationId="RenamePlaylistEntry"
@@ -44,7 +44,7 @@
                 <Button Grid.Column="2"
                         Text="{Binding CancelLabel}"
                         BackgroundColor="Transparent"
-                        TextColor="{StaticResource Accent}"
+                        TextColor="{DynamicResource Accent}"
                         Command="{Binding CancelRenameCommand}" />
             </Grid>
         </Border>
@@ -59,7 +59,7 @@
                                 Padding="12"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 8"
-                                Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                                BackgroundColor="{DynamicResource Surface}">
                             <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                                   ColumnSpacing="6">
                                 <VerticalStackLayout Grid.Column="0"
@@ -72,7 +72,7 @@
                                            LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding TrackCountText}"
                                            FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                                           TextColor="{DynamicResource TextSecondary}" />
                                 </VerticalStackLayout>
                                 <ImageButton Grid.Column="1"
                                              Source="edit.png"
@@ -123,7 +123,7 @@
                                IsVisible="{Binding IsBusy}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
-                               Color="{StaticResource Accent}" />
+                               Color="{DynamicResource Accent}" />
         </Grid>
 
         <controls:MiniPlayerView Grid.Row="4" />

@@ -21,7 +21,7 @@
                            FontSize="16"
                            FontAttributes="Bold"
                            Padding="0,12,0,6"
-                           TextColor="{StaticResource Accent}" />
+                           TextColor="{DynamicResource Accent}" />
                 </DataTemplate>
             </CollectionView.GroupHeaderTemplate>
             <CollectionView.ItemTemplate>
@@ -30,7 +30,7 @@
                             Padding="8"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 8"
-                            Background="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+                            BackgroundColor="{DynamicResource Surface}">
                         <Grid ColumnDefinitions="*,Auto"
                               ColumnSpacing="8">
                             <VerticalStackLayout Grid.Column="0"
@@ -43,7 +43,7 @@
                                        LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding Artist}"
                                        FontSize="12"
-                                       TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}"
+                                       TextColor="{DynamicResource TextSecondary}"
                                        MaxLines="1"
                                        LineBreakMode="TailTruncation" />
                             </VerticalStackLayout>
@@ -76,7 +76,7 @@
                            IsVisible="{Binding IsBusy}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
-                           Color="{StaticResource Accent}" />
+                           Color="{DynamicResource Accent}" />
         <controls:MiniPlayerView Grid.Row="1" />
     </Grid>
 </ContentPage>

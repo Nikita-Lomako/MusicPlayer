@@ -13,7 +13,7 @@
                     HorizontalOptions="Center"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 12"
-                    Background="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource PageBackgroundDark}}">
+                    BackgroundColor="{DynamicResource SurfaceAlt}">
                 <Grid>
                     <Image Source="note.png"
                            WidthRequest="64"
@@ -43,77 +43,77 @@
                       Padding="0,8">
                     <Label Text="{Binding TitleLabel}"
                            FontAttributes="Bold"
-                           TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                           TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding TrackTitle}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding ArtistLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding ArtistLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Artist}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding AlbumLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding AlbumLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Album}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding AlbumArtistLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding AlbumArtistLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding AlbumArtist}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding FormatLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding FormatLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Format}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding BitrateLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding BitrateLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Bitrate}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding DurationLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding DurationLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Duration}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding FileSizeLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding FileSizeLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding FileSize}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding YearLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding YearLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Year}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding GenreLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding GenreLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1" Text="{Binding Genre}" HorizontalTextAlignment="End" />
                 </Grid>
-                <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource PageBackgroundLight}, Dark={StaticResource SurfaceDark}}" />
+                <BoxView HeightRequest="1" Color="{DynamicResource BorderColor}" />
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="12"
                       Padding="0,8">
-                    <Label Text="{Binding FilePathLabel}" FontAttributes="Bold" TextColor="{AppThemeBinding Light={StaticResource TextSecondaryLight}, Dark={StaticResource TextSecondaryDark}}" />
+                    <Label Text="{Binding FilePathLabel}" FontAttributes="Bold" TextColor="{DynamicResource TextSecondary}" />
                     <Label Grid.Column="1"
                            Text="{Binding FilePath}"
                            HorizontalTextAlignment="End"
