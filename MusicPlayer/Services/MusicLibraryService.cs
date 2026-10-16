@@ -10,6 +10,8 @@ public sealed class MusicLibraryService : IMusicLibraryService
 
     public event EventHandler? TracksChanged;
 
+    public event EventHandler<TracksRemovedEventArgs>? TracksRemoved;
+
     public async Task<IReadOnlyList<Track>> SaveTracksAsync(
         IEnumerable<Track> tracks,
         CancellationToken cancellationToken = default)
@@ -125,6 +127,7 @@ public sealed class MusicLibraryService : IMusicLibraryService
 
         if (targets.Length > 0)
         {
+            TracksRemoved?.Invoke(this, new TracksRemovedEventArgs(targets.Select(track => track.Id).ToArray()));
             TracksChanged?.Invoke(this, EventArgs.Empty);
         }
 

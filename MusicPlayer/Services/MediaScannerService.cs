@@ -49,6 +49,14 @@ public sealed partial class MediaScannerService : IMediaScannerService
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
+        // The user controls what gets scanned: no folders means no scan. This
+        // also prevents the Android MediaStore query from walking the whole
+        // device when nothing was selected.
+        if (folderList.Length == 0)
+        {
+            return Array.Empty<Track>();
+        }
+
     #if ANDROID
         if (!OperatingSystem.IsAndroidVersionAtLeast(29))
         {

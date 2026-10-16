@@ -76,7 +76,7 @@
   <data name="AddFolderButton" xml:space="preserve"><value>Добавить папку</value></data>
   <data name="RemoveFolderLabel" xml:space="preserve"><value>Убрать папку</value></data>
   <data name="PickFileButton" xml:space="preserve"><value>Выбрать файл</value></data>
-  <data name="NoFoldersSelected" xml:space="preserve"><value>Папки не выбраны — используется папка музыки по умолчанию</value></data>
+  <data name="NoFoldersSelected" xml:space="preserve"><value>Папки не выбраны — добавьте папки, которые нужно сканировать</value></data>
   <data name="ScanCompletedFormat" xml:space="preserve"><value>Найдено треков: {0}</value></data>
   <data name="ScanningStatus" xml:space="preserve"><value>Сканирование…</value></data>
   <data name="FolderPickerTitle" xml:space="preserve"><value>Выберите папку</value></data>

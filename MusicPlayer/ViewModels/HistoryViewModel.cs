@@ -11,21 +11,25 @@ namespace MusicPlayer.ViewModels;
 public sealed partial class HistoryViewModel : ObservableObject
 {
     private readonly IHistoryService _historyService;
+    private readonly IMusicLibraryService _musicLibrary;
     private readonly IAudioService _audioService;
     private readonly ILocalizationService _localizationService;
     private bool _hasInitialized;
 
     public HistoryViewModel(
         IHistoryService historyService,
+        IMusicLibraryService musicLibrary,
         IAudioService audioService,
         ILocalizationService localizationService)
     {
         _historyService = historyService;
+        _musicLibrary = musicLibrary;
         _audioService = audioService;
         _localizationService = localizationService;
 
         _localizationService.LanguageChanged += OnLanguageChanged;
         _audioService.PropertyChanged += OnAudioServicePropertyChanged;
+        _musicLibrary.TracksChanged += OnLibraryTracksChanged;
     }
 
     public ObservableCollection<HistoryGroup> Groups { get; } = [];
@@ -108,6 +112,16 @@ public sealed partial class HistoryViewModel : ObservableObject
                 await Task.Delay(300);
                 await LoadAsync();
             });
+        }
+    }
+
+    // Deleted tracks are also dropped from the history tables, so refresh the
+    // list instead of keeping entries that can no longer be played.
+    private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs)
+    {
+        if (_hasInitialized)
+        {
+            MainThread.BeginInvokeOnMainThread(() => _ = LoadAsync());
         }
     }
 

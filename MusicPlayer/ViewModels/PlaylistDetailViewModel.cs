@@ -30,6 +30,7 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
         _audioService = audioService;
         _localizationService = localizationService;
         _localizationService.LanguageChanged += OnLanguageChanged;
+        _musicLibrary.TracksChanged += OnLibraryTracksChanged;
     }
 
     public ObservableCollection<Track> Tracks { get; } = [];
@@ -238,6 +239,25 @@ public sealed partial class PlaylistDetailViewModel : ObservableObject
                 OnPropertyChanged(nameof(PlaylistName));
             }
         });
+
+    // Deleting tracks (for example after removing a scan folder) must drop
+    // them from an already open playlist instead of leaving stale rows that
+    // can still be played.
+    private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs)
+    {
+        if (_playlistId <= 0)
+        {
+            return;
+        }
+
+        MainThread.BeginInvokeOnMainThread(() => _ = ReloadAsync());
+    }
+
+    private async Task ReloadAsync()
+    {
+        await ReloadTracksAsync();
+        await ReloadLibraryAsync();
+    }
 }
 
 public sealed partial class LibraryTrackItem : ObservableObject

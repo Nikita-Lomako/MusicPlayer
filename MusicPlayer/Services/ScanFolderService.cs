@@ -12,21 +12,7 @@ public sealed class ScanFolderService : IScanFolderService
 
     public IReadOnlyList<string> GetRemovedFolders() => ReadList(RemovedPreferenceKey);
 
-    public IReadOnlyList<string> GetDefaultFolders()
-    {
-#if ANDROID
-        return Array.Empty<string>();
-#else
-        var music = Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
-        return string.IsNullOrWhiteSpace(music) ? Array.Empty<string>() : [music];
-#endif
-    }
-
-    public IReadOnlyList<string> GetEffectiveFolders()
-    {
-        var selected = GetSelectedFolders();
-        return selected.Count > 0 ? selected : GetDefaultFolders();
-    }
+    public IReadOnlyList<string> GetEffectiveFolders() => GetSelectedFolders();
 
     public void AddFolder(string folder)
     {
