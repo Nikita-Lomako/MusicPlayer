@@ -10,14 +10,21 @@ namespace MusicPlayer.ViewModels;
 public sealed partial class PlaylistsViewModel : ObservableObject
 {
     private readonly IPlaylistService _playlistService;
+    private readonly IMusicLibraryService _musicLibrary;
     private readonly ILocalizationService _localizationService;
     private bool _hasInitialized;
+    private bool _reloadPending;
 
-    public PlaylistsViewModel(IPlaylistService playlistService, ILocalizationService localizationService)
+    public PlaylistsViewModel(
+        IPlaylistService playlistService,
+        IMusicLibraryService musicLibrary,
+        ILocalizationService localizationService)
     {
         _playlistService = playlistService;
+        _musicLibrary = musicLibrary;
         _localizationService = localizationService;
         _localizationService.LanguageChanged += OnLanguageChanged;
+        _musicLibrary.TracksChanged += OnLibraryTracksChanged;
     }
 
     public ObservableCollection<PlaylistItem> Playlists { get; } = [];
@@ -172,6 +179,7 @@ public sealed partial class PlaylistsViewModel : ObservableObject
     {
         if (IsBusy)
         {
+            _reloadPending = true;
             return;
         }
 
@@ -194,8 +202,16 @@ public sealed partial class PlaylistsViewModel : ObservableObject
         finally
         {
             IsBusy = false;
+            if (_reloadPending)
+            {
+                _reloadPending = false;
+                await LoadAsync();
+            }
         }
     }
+
+    private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs) =>
+        MainThread.BeginInvokeOnMainThread(() => _ = LoadAsync());
 
     private void OnLanguageChanged(object? sender, EventArgs eventArgs) =>
         MainThread.BeginInvokeOnMainThread(() =>

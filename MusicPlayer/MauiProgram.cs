@@ -35,7 +35,7 @@ namespace MusicPlayer
             builder.Services.AddSingleton<LibraryViewModel>();
             builder.Services.AddSingleton<PlayerViewModel>();
             builder.Services.AddSingleton<SettingsViewModel>();
-            builder.Services.AddTransient<PlaylistsViewModel>();
+            builder.Services.AddSingleton<PlaylistsViewModel>();
             builder.Services.AddTransient<PlaylistDetailViewModel>();
             builder.Services.AddTransient<HistoryViewModel>();
             builder.Services.AddTransient<TrackDetailsViewModel>();

@@ -42,6 +42,7 @@ public sealed partial class LibraryViewModel : ObservableObject
 
         _audioService.PropertyChanged += OnAudioServicePropertyChanged;
         _localizationService.LanguageChanged += OnLanguageChanged;
+        _musicLibrary.TracksChanged += OnLibraryTracksChanged;
     }
 
     public ObservableCollection<Track> Tracks { get; }
@@ -120,10 +121,9 @@ public sealed partial class LibraryViewModel : ObservableObject
         _hasInitialized = true;
         await LoadFromLibraryAsync();
 
-        if (Tracks.Count == 0)
-        {
-            await ScanLibraryAsync();
-        }
+        // Always rescan the folders the user already added so the library
+        // reflects the file system on every launch.
+        await ScanLibraryAsync();
     }
 
     [RelayCommand]
@@ -146,7 +146,6 @@ public sealed partial class LibraryViewModel : ObservableObject
             }
 
             await _musicLibrary.SaveTracksAsync([track]);
-            await LoadFromLibraryAsync();
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidDataException)
         {
@@ -222,10 +221,9 @@ public sealed partial class LibraryViewModel : ObservableObject
             var scannedTracks = await _mediaScanner.ScanFoldersAsync(folders);
             if (scannedTracks.Count > 0)
             {
+                // MusicLibraryService raises TracksChanged, which reloads the list.
                 await _musicLibrary.SaveTracksAsync(scannedTracks);
             }
-
-            await LoadFromLibraryAsync();
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
         {
@@ -297,6 +295,9 @@ public sealed partial class LibraryViewModel : ObservableObject
         OnPropertyChanged(nameof(ScanErrorLabel));
         OnPropertyChanged(nameof(TrackInfoLabel));
     }
+
+    private void OnLibraryTracksChanged(object? sender, EventArgs eventArgs) =>
+        MainThread.BeginInvokeOnMainThread(() => _ = LoadFromLibraryAsync());
 
     private void OnAudioServicePropertyChanged(object? sender, PropertyChangedEventArgs eventArgs)
     {
