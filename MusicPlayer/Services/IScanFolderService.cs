@@ -8,8 +8,11 @@ public interface IScanFolderService
 {
     IReadOnlyList<string> GetSelectedFolders();
 
-    IReadOnlyList<string> GetDefaultFolders();
-
+    /// <summary>
+    /// Folders that should actually be scanned. Scanning is limited to the
+    /// folders the user picked: when nothing is selected nothing is scanned,
+    /// even if the app could reach other media on the device.
+    /// </summary>
     IReadOnlyList<string> GetEffectiveFolders();
 
     /// <summary>

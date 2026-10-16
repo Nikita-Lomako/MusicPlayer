@@ -76,7 +76,7 @@
   <data name="AddFolderButton" xml:space="preserve"><value>Add folder</value></data>
   <data name="RemoveFolderLabel" xml:space="preserve"><value>Remove folder</value></data>
   <data name="PickFileButton" xml:space="preserve"><value>Pick a file</value></data>
-  <data name="NoFoldersSelected" xml:space="preserve"><value>No folders selected — the default music folder is used</value></data>
+  <data name="NoFoldersSelected" xml:space="preserve"><value>No folders selected — add the folders you want to scan</value></data>
   <data name="ScanCompletedFormat" xml:space="preserve"><value>Tracks found: {0}</value></data>
   <data name="ScanningStatus" xml:space="preserve"><value>Scanning…</value></data>
   <data name="FolderPickerTitle" xml:space="preserve"><value>Select a folder</value></data>
