@@ -40,11 +40,11 @@ public sealed class AudioService : IAudioService
 
     public bool IsPlaying => _isPlaying;
 
-    public TimeSpan Position => _player?.Position ?? _position;
+    public TimeSpan Position => _position;
 
-    public TimeSpan Duration => _player is null || _player.Duration == TimeSpan.Zero
+    public TimeSpan Duration => _duration > TimeSpan.Zero
         ? _duration
-        : _player.Duration;
+        : CurrentTrack?.Duration ?? TimeSpan.Zero;
 
     public double Volume => _volume;
 
@@ -175,7 +175,7 @@ public sealed class AudioService : IAudioService
             player.ShouldAutoPlay = true;
             if (player.CurrentState is MediaElementState.Paused or MediaElementState.Stopped)
             {
-                player.Play();
+                TryPlay(player);
             }
         });
     }
@@ -382,20 +382,23 @@ public sealed class AudioService : IAudioService
 
     private void OnMediaOpened(object? sender, EventArgs eventArgs)
     {
-        if (_player is null)
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            return;
-        }
+            if (_player is null)
+            {
+                return;
+            }
 
-        _duration = _player.Duration;
-        _position = _player.Position;
-        if (_shouldPlayWhenOpened)
-        {
-            _player.Play();
-        }
+            _duration = _player.Duration;
+            _position = _player.Position;
+            if (_shouldPlayWhenOpened)
+            {
+                TryPlay(_player);
+            }
 
-        OnPropertyChanged(nameof(Duration));
-        OnPropertyChanged(nameof(Position));
+            OnPropertyChanged(nameof(Duration));
+            OnPropertyChanged(nameof(Position));
+        });
     }
 
     private async void OnMediaEnded(object? sender, EventArgs eventArgs)
@@ -420,18 +423,39 @@ public sealed class AudioService : IAudioService
 
     private void OnPositionChanged(object? sender, EventArgs eventArgs)
     {
-        if (_player is not null)
+        MainThread.BeginInvokeOnMainThread(() =>
         {
+            if (_player is null)
+            {
+                return;
+            }
+
             _position = _player.Position;
             OnPropertyChanged(nameof(Position));
-        }
+        });
     }
 
     private void OnStateChanged(object? sender, EventArgs eventArgs)
     {
-        if (_player is not null)
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            SetIsPlaying(_player.CurrentState == MediaElementState.Playing);
+            if (_player is not null)
+            {
+                SetIsPlaying(_player.CurrentState == MediaElementState.Playing);
+            }
+        });
+    }
+
+    private static void TryPlay(MediaElement player)
+    {
+        try
+        {
+            player.Play();
+        }
+        catch (Exception)
+        {
+            // The platform player can reject Play() while a source is still
+            // initializing; ShouldAutoPlay will start playback on its own.
         }
     }
 
